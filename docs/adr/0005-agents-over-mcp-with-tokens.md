@@ -19,4 +19,5 @@ Kairos exposes an **MCP server over Streamable HTTP** at `/mcp`, mounted in the 
 ## Consequences
 
 - If the spike fails, fall back to a thin stdio MCP proxy that injects the token (documented and tested), or to an environment-variable-selected identity.
+- Until the spike proves otherwise, subagents are treated as the same agent identity as their parent session. Events carry an optional `via` label naming the subagent (attribution only, no extra permissions).
 - This ADR is replaced by an *accepted* one once the spike is done.

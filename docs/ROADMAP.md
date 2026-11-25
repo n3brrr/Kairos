@@ -21,7 +21,8 @@ Brainstorming, spec, ADR, contexto del repo. **Sale cuando el usuario aprueba el
 - Dominio puro: estados, candados, permisos, invariantes (con tests de propiedades).
 - Persistencia SQLite + historial inmutable encadenado.
 - API REST y servidor MCP con identidades y tokens; agente orquestador.
-- UI mínima: acceso del usuario, lista y tablero básico, **cola de aprobaciones**, gestión de agentes y tokens.
+- Modelo completo de jerarquía, dependencias y fechas (los candados y el contexto del agente lo necesitan), sin vistas ricas.
+- UI mínima: acceso del usuario, lista simple de tareas, **cola de aprobaciones**, gestión de agentes y tokens.
 - Migrar `bootstrap-tasks.md` a Kairos.
 
 **Hito:** los agentes usan Kairos para llevar las tareas de Kairos.
@@ -29,7 +30,7 @@ Brainstorming, spec, ADR, contexto del repo. **Sale cuando el usuario aprueba el
 ## Etapa 2: Tablero y dashboard — ⬜
 
 - Kanban filtrable (proyecto, tipo, estado, agente) con % de avance.
-- Jerarquía completa, dependencias, fechas con semántica.
+- Vistas de jerarquía, dependencias y fechas con semántica (el modelo ya existe desde la etapa 1).
 - Dashboard (ver spec §10) y actualización en vivo (SSE).
 - Look «mitológico pero simple» (se diseña con mockups antes de implementarlo).
 

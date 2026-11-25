@@ -4,7 +4,7 @@ La UI usa el término en español; el código usa el inglés. Si aparece un conc
 
 | Español (UI) | Inglés (código) | Significado |
 |---|---|---|
-| Proyecto | `Project` | Contenedor de más alto nivel. Estados: activo, en cola, pausado, archivado. |
+| Proyecto | `Project` | Contenedor de más alto nivel. Estados: activo, en cola, pausado, archivado. Tiene un **área** (Personal, Desarrollo…). |
 | Épica | `Epic` (kind de `Item`) | Agrupa tareas de un mismo objetivo dentro de un proyecto. |
 | Tarea | `Task` (kind de `Item`) | Unidad de trabajo asignable a un humano o a un agente. |
 | Subtarea | `Subtask` (kind de `Item`) | Parte de una tarea; no se asigna por separado. |
@@ -19,10 +19,11 @@ La UI usa el término en español; el código usa el inglés. Si aparece un conc
 | Actor | `Actor` | Quien ejecuta una acción: humano, agente, orquestador o sistema. |
 | Agente | `Agent` | Sesión de Claude Code con identidad, especialidad, alcance y token. |
 | Orquestador | `Orchestrator` | Agente con rol ampliado: asigna y tría, pero no aprueba. |
+| Subagente | `Subagent` | Ayudante de un agente dentro de su sesión, para tareas grandes. Sin permisos propios; se registra solo como atribución (`via`). |
 | Propuesta | `Proposal` (estado `proposed`) | Tarea creada por un agente que espera triaje. |
 | Solicitud de aprobación | `ApprovalRequest` | Petición con descripción y motivo, al estilo de un PR. La decide el humano. |
 | Asignación | `Assignment` | Relación tarea ↔ agente. Un agente, una tarea activa. |
-| Reserva | `Reservation` | Tarea apartada para un agente concreto antes de que la empiece. |
+| Forzar candado | `GateOverride` | El usuario salta un candado indicando un motivo; queda en el historial. |
 | Historial | `events` (log) | Registro inmutable, solo-anexar, de todo cambio. |
 | Puerta única | single door | Toda entrada pasa por los mismos casos de uso con un `Actor`. |
 | Pasada | review pass | Ronda de propuesta de mejoras; ver `FEATURES.md`. |

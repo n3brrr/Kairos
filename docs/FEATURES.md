@@ -32,9 +32,12 @@ Escalas: valor y coste en `B` (bajo), `M` (medio), `A` (alto).
 | IDEA-12 | Backup programado a JSON/Markdown con restauración verificada | A | M | 4 | propuesta |
 | IDEA-13 | Políticas por agente: límites de ediciones, de tiempo en curso, de tipos permitidos editables desde la UI | M | M | 3 | propuesta |
 | IDEA-14 | Enlace al transcript o resumen de la sesión del agente desde cada tarea en revisión | M | M | 3 | propuesta |
+| IDEA-15 | Campos propios por tipo de tarea (esquema dinámico y editor de tipos) | M | A | 3+ | pospuesta: lista fija en la etapa 1 |
+| IDEA-16 | Identidad propia por subagente (token con permisos acotados por los del agente padre) | M | M | tras el spike | propuesta, depende de ADR-0005 |
 
 ## Log de pasadas
 
 | Fecha | Quién | Qué se añadió |
 |---|---|---|
 | 2026-11-26 | Claude | Pasada inicial: IDEA-01 a IDEA-14, a partir de los requisitos del brainstorming. |
+| 2026-11-26 | Claude | IDEA-15 e IDEA-16, a raíz de las respuestas sobre campos propios y subagentes. |
