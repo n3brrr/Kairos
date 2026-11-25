@@ -21,6 +21,7 @@
 - Non-root container with a read-only filesystem except the data volume (spec §9).
 - Everything in the repo is English: code, identifiers, UI strings (kept in a message catalog), docs, commits, PRs. Only the chat with the owner is Spanish.
 - Git: branches `<type>/BOOT-nn-slug` from `origin/main` in a worktree `../Kairos-wt/<ID>`; Conventional Commits in English; `git add <file>` by name; never `--no-verify`; the owner merges by squash (ADR-0004, `CLAUDE.md`).
+- Package managers (owner rule): **pnpm** for everything JavaScript/TypeScript (install, run, exec, dlx); never `npm`, `npx`, `yarn` or a `package-lock.json`. **uv** for Python; never `pip install` into the system. (`npm` still appears as the Dependabot ecosystem name; that is a config key, not a command.)
 - The CI job is named exactly `check`.
 - No calls to the Anthropic API (spec §3).
 - Out of scope (YAGNI): database, authentication, a real MCP endpoint, Tailwind, dnd-kit, TanStack Query, Playwright. They arrive in stage 1 or 2.
@@ -173,7 +174,7 @@ git commit -m "feat(frontend): add React PWA skeleton with message catalog (BOOT
 
 **Files:**
 - Create: `tools/gen_api_types.py`, `tools/tests/conftest.py` (puts `tools/` and `tools/hooks/` on `sys.path`), `tools/tests/test_gen_api_types.py`, `frontend/src/api/schema.d.ts` (generated), `frontend/src/api/client.ts`
-- Modify: `frontend/package.json` (add `openapi-typescript`, `openapi-fetch`), `frontend/src/App.tsx`, `frontend/src/messages.ts`, `frontend/src/App.test.tsx`
+- Modify: `frontend/package.json` (add `openapi-typescript`, `openapi-fetch`), `frontend/biome.json` (ignore the generated `src/api/schema.d.ts` so `pnpm lint` never reformats it), `frontend/src/App.tsx`, `frontend/src/messages.ts`, `frontend/src/App.test.tsx`
 
 **Interfaces:**
 - Produces: `normalize(text: str) -> str` (CRLF → LF) and `is_up_to_date(generated: str, committed: str) -> bool` in `tools/gen_api_types.py`.
@@ -291,7 +292,7 @@ git commit -m "build: add multi-stage Docker image and loopback-only compose (BO
 Before writing, read the current Claude Code hooks and permissions documentation (event names, stdin JSON fields, exit-code semantics, settings syntax) and follow it; the behavior below is the intent.
 
 **Interfaces:**
-- Produces: `check_command(command: str) -> str | None` in `guard_bash.py`: a block reason, or `None`. It blocks, anywhere inside a chained command: `git push` with `--force`, `-f` or `--force-with-lease`; `git push` to `main` (`origin main`, `HEAD:main`); `git add .`, `-A`, `--all`; `git commit` with `--no-verify` or `-n`; `git reset --hard`; `gh pr merge`; `docker compose down` with `-v` or `--volumes`; `docker volume rm|prune`; `docker system prune`. The hook entry reads the JSON on stdin (`tool_input.command`), prints the reason to stderr and exits `2` when blocked.
+- Produces: `check_command(command: str) -> str | None` in `guard_bash.py`: a block reason, or `None`. It blocks, anywhere inside a chained command: `git push` with `--force`, `-f` or `--force-with-lease`; `git push` to `main` (`origin main`, `HEAD:main`); `git add .`, `-A`, `--all`; `git commit` with `--no-verify` or `-n`; `git reset --hard`; `gh pr merge`; `npm`, `npx` or `yarn` invocations (the project uses pnpm); `docker compose down` with `-v` or `--volumes`; `docker volume rm|prune`; `docker system prune`. The hook entry reads the JSON on stdin (`tool_input.command`), prints the reason to stderr and exits `2` when blocked.
 - Produces: `needs_status_update(status_mtime: float, changed: dict[str, float]) -> bool` in `status_reminder.py`: `changed` maps changed paths outside `docs/` to their mtimes; true iff any is newer than `status_mtime`. The `Stop` hook exits `2` with a one-line reminder (`Update docs/STATUS.md before finishing`) unless `stop_hook_active` is true.
 - Produces: `formatter_for(path: str) -> list[str] | None` in `format_on_edit.py`: `*.py` under `backend/` or `tools/` → `["uv", "run", "--project", "backend", "ruff", "format", "--config", "backend/pyproject.toml", path]` (same config as `check`, so the hook and `check` never disagree); `frontend/**/*.{ts,tsx,json}` → `["pnpm", "--dir", "frontend", "exec", "biome", "format", "--write", path]`; anything else → `None`.
 - Produces: `.claude/settings.json` wiring `PreToolUse` on `Bash`, `PostToolUse` on `Edit|Write`, `Stop`; an allow-list for verification and read-only commands (`python tools/check.py`, `uv run *`, `pnpm *`, `git status|diff|log`, `docker compose ps|logs|build|up|down`); deny reading `.env` and `.env.*`; deny `gh pr merge`.
@@ -305,13 +306,16 @@ Before writing, read the current Claude Code hooks and permissions documentation
     "git add -A", "git commit -m x --no-verify", "git reset --hard HEAD~1",
     "gh pr merge 3 --squash", "docker compose down -v",
     "docker volume rm kairos_kairos-data", "docker system prune -af",
+    "npm install", "npx biome check", "yarn add x",
 ])
 def test_blocks_destructive_commands(cmd):
     assert check_command(cmd) is not None
 
 @pytest.mark.parametrize("cmd", [
     "git status", "git push -u origin feat/BOOT-004-x", "git add backend/src/kairos/main.py",
-    "python tools/check.py", "docker compose down", "pnpm test",
+    "python tools/check.py", "docker compose down", "pnpm test", "pnpm install --frozen-lockfile",
+    "pnpm exec biome check .", "pnpm dlx some-tool", "git add .github/workflows/ci.yml",
+    "git add .claude/settings.json", "git add -- .gitignore", "git push -u origin docs/main-notes",
 ])
 def test_allows_normal_commands(cmd):
     assert check_command(cmd) is None
@@ -373,7 +377,7 @@ Then push the branch and open the PR (`chore: add Claude Code project configurat
 **Interfaces:**
 - Produces: a job named exactly `check` that the `main` ruleset will require.
 
-- [ ] **Step 1: Write `ci.yml`.** Triggers: `pull_request` to `main` and `push` to `main`; `permissions: contents: read`; `concurrency` cancelling in-progress runs per ref. Job `check` on `ubuntu-latest`: checkout, `setup-uv` (cached), `setup-node` 24, pnpm setup (reads `packageManager`), `uv sync --frozen` in `backend/`, `pnpm install --frozen-lockfile` in `frontend/`, then `python tools/check.py`. Job `docker`: `docker compose up -d --wait`, `curl --fail http://127.0.0.1:8000/api/health`, `docker compose down`. Use the current major versions of the official actions (verify them).
+- [ ] **Step 1: Write `ci.yml`.** Triggers: `pull_request` to `main` and `push` to `main`; `permissions: contents: read`; `concurrency` cancelling in-progress runs per ref. Job `check` on `ubuntu-latest`: checkout, `setup-uv` (cached), `setup-node` 24, pnpm setup (`pnpm/action-setup` pointed at `frontend/package.json` with `package_json_file`, since there is no root `package.json`; `setup-node` cached with `cache-dependency-path: frontend/pnpm-lock.yaml`), `uv sync --frozen` in `backend/`, `pnpm install --frozen-lockfile` in `frontend/`, then `python tools/check.py`. Job `docker`: `docker compose up -d --wait`, `curl --fail http://127.0.0.1:8000/api/health`, `docker compose down`. Use the current major versions of the official actions (verify them).
 - [ ] **Step 2: Write `dependabot.yml`:** weekly, limit 5, ecosystems `uv` (`/backend`), `npm` (`/frontend`), `docker` (`/`), `github-actions` (`/`); no `target-branch` (default is `main`).
 - [ ] **Step 3: Write `pull_request_template.md`** in English: *What changed*, *Why*, *How it was tested*, task link.
 - [ ] **Step 4: Verify locally.** `uv run --project backend python -c "import sys, yaml; [yaml.safe_load(open(p)) for p in sys.argv[1:]]" .github/workflows/ci.yml .github/dependabot.yml` exits `0`; `python tools/check.py` is green.
