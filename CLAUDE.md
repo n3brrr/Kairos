@@ -43,6 +43,7 @@ Dockerfile · compose.yaml   a single container
 6. **Security.** The port listens only on `127.0.0.1`; passwords and tokens are stored only as hashes; no secrets in the repo (`.env` stays out, `.env.example` goes in).
 7. **Data.** SQLite lives in a **named** Docker volume, not a bind mount (WAL is not reliable on Windows bind mounts).
 8. **One PR, one purpose.** Small, focused changes.
+9. **Package managers.** `pnpm` for everything JavaScript/TypeScript (install, run, exec, dlx); never `npm`, `npx`, `yarn` or a `package-lock.json`. `uv` for Python; never `pip install` into the system. A hook enforces this from stage 0.
 
 ## Language
 
