@@ -1,43 +1,43 @@
-# Ideas de mejora y «pasadas»
+# Improvement ideas and review passes
 
-Este archivo guarda lo que **podría** añadirse a Kairos. Nada de aquí se implementa sin aprobación del usuario.
+This file holds what **could** be added to Kairos. Nothing here is built without the owner's approval.
 
-## Cómo se hace una pasada
+## How a pass works
 
-Una *pasada* es una ronda corta y periódica (por ejemplo, al terminar cada etapa) para proponer mejoras.
+A *pass* is a short, periodic round (for example at the end of each stage) to propose improvements.
 
-1. Leer `STATUS.md`, el spec vigente y lo que ya existe en el producto.
-2. Mirar el producto funcionando, no solo el código: ¿qué fricción hay al usarlo con agentes?
-3. Añadir ideas nuevas a la tabla con un ID `IDEA-nn` siguiente, valor, coste y etapa sugerida. No duplicar: buscar antes.
-4. Registrar la pasada en el log de abajo.
-5. El usuario decide por idea: **aceptada** (pasa a una tarea de Kairos), **pospuesta** o **descartada** (con motivo breve). Las ideas no se borran.
+1. Read `STATUS.md`, the current spec and what already exists in the product.
+2. Look at the running product, not only the code: what friction is there when using it with agents?
+3. Add new ideas to the table with the next `IDEA-nn` ID, value, cost and suggested stage. Do not duplicate: search first.
+4. Record the pass in the log below.
+5. The owner decides per idea: **accepted** (becomes a Kairos task), **postponed** or **discarded** (with a short reason). Ideas are never deleted.
 
-Escalas: valor y coste en `B` (bajo), `M` (medio), `A` (alto).
+Value and cost scale: `L` (low), `M` (medium), `H` (high).
 
 ## Ideas
 
-| ID | Idea | Valor | Coste | Etapa sugerida | Estado |
+| ID | Idea | Value | Cost | Suggested stage | Status |
 |---|---|---|---|---|---|
-| IDEA-01 | Plantillas de tarea por tipo, con criterios de aceptación precargados | A | B | 1 | propuesta |
-| IDEA-02 | Vista «Hoy / Esta semana» para enfocar entre las ~200 tareas activas | A | M | 2 | propuesta |
-| IDEA-03 | Búsqueda global y filtros guardados (SQLite FTS5) | A | M | 2 | propuesta |
-| IDEA-04 | Paleta de comandos (`Ctrl+K`) y atajos de teclado en el tablero | M | B | 2 | propuesta |
-| IDEA-05 | Aprobación en lote con teclado («modo revisión rápida») | A | B | 2 | propuesta |
-| IDEA-06 | Detección de tareas estancadas (en curso sin eventos durante N días) | A | B | 2 | propuesta |
-| IDEA-07 | Enlace tarea ↔ rama/PR de GitHub mediante el ID `KAI-n` | M | M | 2 | propuesta |
-| IDEA-08 | Notificaciones de escritorio cuando hay aprobaciones pendientes | M | B | 3 | propuesta |
-| IDEA-09 | Estimación de consumo de cuota de Claude Pro por agente y tarea | M | M | 3 | propuesta |
-| IDEA-10 | Métricas de calidad por agente: tasa de rechazo en revisión, tiempo hasta aprobación | M | B | 2 | propuesta |
-| IDEA-11 | Rutinas personales recurrentes (revisión semanal, mantenimiento) como plantillas de automatización | M | B | 3 | propuesta |
-| IDEA-12 | Backup programado a JSON/Markdown con restauración verificada | A | M | 4 | propuesta |
-| IDEA-13 | Políticas por agente: límites de ediciones, de tiempo en curso, de tipos permitidos editables desde la UI | M | M | 3 | propuesta |
-| IDEA-14 | Enlace al transcript o resumen de la sesión del agente desde cada tarea en revisión | M | M | 3 | propuesta |
-| IDEA-15 | Campos propios por tipo de tarea (esquema dinámico y editor de tipos) | M | A | 3+ | pospuesta: lista fija en la etapa 1 |
-| IDEA-16 | Identidad propia por subagente (token con permisos acotados por los del agente padre) | M | M | tras el spike | propuesta, depende de ADR-0005 |
+| IDEA-01 | Task templates per type, with pre-filled acceptance criteria | H | L | 1 | proposed |
+| IDEA-02 | "Today / This week" view to focus among the ~200 active tasks | H | M | 2 | proposed |
+| IDEA-03 | Global search and saved filters (SQLite FTS5) | H | M | 2 | proposed |
+| IDEA-04 | Command palette (`Ctrl+K`) and keyboard shortcuts on the board | M | L | 2 | proposed |
+| IDEA-05 | Keyboard-driven batch approval ("quick review mode") | H | L | 2 | proposed |
+| IDEA-06 | Stalled-task detection (in progress with no events for N days) | H | L | 2 | proposed |
+| IDEA-07 | Task ↔ GitHub branch/PR link through the `KAI-n` ID | M | M | 2 | proposed |
+| IDEA-08 | Desktop notifications when approvals are pending | M | L | 3 | proposed |
+| IDEA-09 | Estimated Claude Pro quota use per agent and task | M | M | 3 | proposed |
+| IDEA-10 | Per-agent quality metrics: review rejection rate, time to approval | M | L | 2 | proposed |
+| IDEA-11 | Recurring personal routines (weekly review, upkeep) as automation templates | M | L | 3 | proposed |
+| IDEA-12 | Scheduled backup to JSON/Markdown with verified restore | H | M | 4 | proposed |
+| IDEA-13 | Per-agent policies: edit limits, time-in-progress limits, allowed types editable from the UI | M | M | 3 | proposed |
+| IDEA-14 | Link to the agent session transcript or summary from each task in review | M | M | 3 | proposed |
+| IDEA-15 | Custom fields per task type (dynamic schema and type editor) | M | H | 3+ | postponed: fixed fields in stage 1 |
+| IDEA-16 | Own identity per subagent (token with permissions bounded by the parent agent's) | M | M | after the spike | proposed, depends on ADR-0005 |
 
-## Log de pasadas
+## Pass log
 
-| Fecha | Quién | Qué se añadió |
+| Date | Who | What was added |
 |---|---|---|
-| 2026-11-26 | Claude | Pasada inicial: IDEA-01 a IDEA-14, a partir de los requisitos del brainstorming. |
-| 2026-11-26 | Claude | IDEA-15 e IDEA-16, a raíz de las respuestas sobre campos propios y subagentes. |
+| 2026-11-26 | Claude | Initial pass: IDEA-01 to IDEA-14, from the brainstorming requirements. |
+| 2026-11-26 | Claude | IDEA-15 and IDEA-16, from the answers about custom fields and subagents. |

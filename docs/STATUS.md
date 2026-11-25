@@ -1,43 +1,44 @@
-# Estado de Kairos
+# Kairos status
 
-> **Leé esto primero.** Si se perdió el contexto, este archivo dice dónde estamos. Reescribilo (no lo apiles) al cerrar cada bloque de trabajo.
+> **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Última actualización:** 2026-11-26 · **Fase:** diseño cerrado; plan de la etapa 0 en redacción.
+**Last updated:** 2026-11-26 · **Phase:** design closed; stage 0 plan in progress.
 
-## Dónde estamos
+## Where we are
 
-- Concepto, alcance y stack definidos con el usuario y documentados en [`superpowers/specs/2026-11-26-kairos-design.md`](superpowers/specs/2026-11-26-kairos-design.md). La revisión del spec por un subagente dejó dos preguntas; el usuario las respondió (§17.1 del spec). No quedan preguntas abiertas.
-- Remoto conectado: <https://github.com/n3brrr/Kairos> (público, MIT, `main` sin protección todavía).
-- El PR `docs/BOOT-001-project-context` lleva este contexto a `main`; **lo fusiona el usuario** (squash).
-- **No hay código de producto.** El siguiente paso es el plan de la etapa 0 (`writing-plans`).
+- Concept, scope and stack were defined with the owner and documented in [`superpowers/specs/2026-11-26-kairos-design.md`](superpowers/specs/2026-11-26-kairos-design.md). A subagent review of the spec left two questions; the owner answered them (spec §17.1). No open questions remain.
+- Remote connected: <https://github.com/n3brrr/Kairos> (public, MIT, `main` not protected yet).
+- PR `docs/BOOT-001-project-context` brings this context to `main`; **the owner merges it** (squash).
+- **There is no product code.** The next step is the stage 0 plan (`writing-plans`).
+- Language policy (owner, 2026-11-26): chat with the owner in Spanish; everything else in English, UI included.
 
-## Hecho
+## Done
 
-- Brainstorming: requisitos, límites del agente, orquestador, stack (backend Python + frontend React), flujo git trunk-based.
-- Contexto del repo: `CLAUDE.md`, `docs/`, ADR 0001–0006, `.gitignore`, `.gitattributes`, `.editorconfig`.
-- Spec de diseño revisado por un subagente y cerrado con las respuestas del usuario.
+- Brainstorming: requirements, agent limits, orchestrator, stack (Python backend + React frontend), trunk-based git flow.
+- Repo context: `CLAUDE.md`, `docs/`, ADRs 0001–0006, `.gitignore`, `.gitattributes`, `.editorconfig`.
+- Design spec reviewed by a subagent and closed with the owner's answers.
 
-## Siguiente (en orden)
+## Next (in order)
 
-1. El usuario revisa y fusiona el PR de BOOT-001.
-2. Plan de la etapa 0 en `docs/superpowers/plans/` (BOOT-002).
-3. Ejecutar la etapa 0: tooling, `check`, Docker, `.claude/`, CI. Después, el spike MCP (ADR-0005).
+1. The owner reviews and merges the BOOT-001 PR.
+2. Stage 0 plan in `docs/superpowers/plans/` (BOOT-002).
+3. Execute stage 0: tooling, `check`, Docker, `.claude/`, CI. Then the MCP spike (ADR-0005).
 
-## Pendiente del usuario
+## Waiting on the owner
 
-- Fusionar el PR de BOOT-001 (squash).
-- Cuando exista CI: importar el ruleset de `main` en GitHub (Settings → Rules → Rulesets → Import). Lo preparo yo.
-- Si lo pide el plan: confirmar la instalación de `uv` (no está instalado).
+- Merge the BOOT-001 PR (squash).
+- Once CI exists: import the `main` ruleset on GitHub (Settings → Rules → Rulesets → Import). Claude prepares the JSON.
+- If the plan requires it: confirm installing `uv` (not installed).
 
-## Riesgos abiertos
+## Open risks
 
-- **MCP + token por agente en Windows:** hay reportes de que Claude Code ignora la cabecera `Authorization` si el servidor anuncia OAuth, y de fallos con `.mcp.json` de proyecto en Windows. Se valida con el spike (ADR-0005).
-- **¿Un subagente puede llevar su propio token o hereda el de la sesión?** Mientras tanto se tratan como el mismo agente, con atribución (`via`).
-- **Dos lenguajes:** el contrato entre backend y frontend depende de generar los tipos desde OpenAPI (ADR-0001); la deriva se comprueba en CI.
+- **MCP + per-agent token on Windows:** there are reports that Claude Code ignores the `Authorization` header when the server advertises OAuth, and of failures with a project `.mcp.json` on Windows. The spike validates this (ADR-0005).
+- **Can a subagent carry its own token or does it inherit the session's?** Until proven otherwise they are treated as the same agent, with attribution (`via`).
+- **Two languages:** the backend/frontend contract depends on generating types from OpenAPI (ADR-0001); drift is checked in CI.
 
-## Cómo retomar
+## How to resume
 
-1. Leer este archivo, luego `CLAUDE.md`, luego el spec vigente.
-2. `git status` y `git log --oneline -10` para ver el estado real.
-3. Revisar `docs/bootstrap-tasks.md` para la siguiente tarea.
-4. Al terminar el bloque: reescribir este archivo.
+1. Read this file, then `CLAUDE.md`, then the current spec.
+2. `git status` and `git log --oneline -10` to see the real state.
+3. Check `docs/bootstrap-tasks.md` for the next task.
+4. When the block is done: rewrite this file.

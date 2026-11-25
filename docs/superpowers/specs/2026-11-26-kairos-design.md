@@ -1,256 +1,256 @@
-# Kairos — Documento de diseño
+# Kairos — Design Document
 
-**Fecha:** 2026-11-26 · **Estado:** borrador para aprobación · **Tamaño:** proyecto (diseño completo)
+**Date:** 2026-11-26 · **Status:** closed after review, open points resolved (§17.1); the owner can still review it in the BOOT-001 PR · **Size:** project (full design)
 
-Convención: lo que el usuario decidió va tal cual. Lo que decidí yo (Claude) sin que lo acordáramos está marcado **(mi llamada)** y reunido en el §17, para que lo revise y lo cambie si no le gusta.
+Convention: what the owner decided is written as decided. What I (Claude) decided without agreeing it with the owner is marked **(my call)** and collected in §17, so it can be reviewed and changed.
 
-## 1. Intención y por qué
+## 1. Intent and why
 
-Kairos (del griego *kairós*, el momento oportuno) es un tablero de tareas para **una persona y sus agentes de Claude Code**. Nace de dos carencias de Trello:
+Kairos (from the Greek *kairós*, "the opportune moment") is a task board for **one person and their Claude Code agents**. It exists because Trello lacks two things:
 
-1. Con muchas tareas abiertas (hasta ~200 activas, más proyectos y tareas en cola) no hay forma de categorizarlas ni de tener un panorama general.
-2. No se puede trabajar con un agente de IA con control real sobre lo que hace.
+1. With many open tasks (up to ~200 active, plus queued projects and tasks) there is no way to categorize them or get an overview.
+2. You cannot work with an AI agent while keeping real control over what it does.
 
-Lo distingue (a) un modelo de datos preciso (estados con transiciones, tipos con campos obligatorios, dependencias, criterios de aceptación con evidencia, jerarquía, fechas con semántica, historial inmutable) y (b) un **control estricto del agente**: identidad, alcance acotado, una tarea a la vez y aprobación humana para cerrar, como un PR.
+What sets it apart: (a) a precise data model (statuses with transitions, types with required fields, dependencies, acceptance criteria with evidence, hierarchy, dates with semantics, immutable history) and (b) **strict agent control**: identity, bounded scope, one task in progress at a time, and human approval to close, like a PR.
 
-Objetivo secundario, explícito: el repo es **público** y debe mostrar a reclutadores ingeniería profesional e integración con LLMs.
+A secondary, explicit goal: the repo is **public** and must show recruiters professional engineering and LLM integration.
 
-## 2. Actores
+## 2. Actors
 
-- **Usuario (humano):** único dueño. Tiene todos los permisos.
-- **Agentes:** sesiones de Claude Code con identidad propia: nombre, especialidad (por ejemplo «bugs»), tipos de tarea y proyectos permitidos, token. Pueden trabajar a la vez en el mismo proyecto.
-- **Orquestador:** agente con rol ampliado que decide quién hace qué. No aprueba.
-- **Sistema (etapa 3):** las automatizaciones actúan como un actor con permisos acotados.
+- **Owner (human):** the single owner. Has every permission.
+- **Agents:** Claude Code sessions with their own identity: name, specialty (for example "bugs"), allowed task types and projects, token. Several can work at once in the same project.
+- **Orchestrator:** an agent with an extended role that decides who does what. It does not approve.
+- **System (stage 3):** automations act as an actor with bounded permissions.
 
-## 3. Objetivos, no-objetivos y anti-objetivos
+## 3. Goals, non-goals and anti-goals
 
-**Objetivos**
-- Modelo preciso y control del agente según el §1.
-- Dashboard como pantalla de entrada para ver el panorama de un vistazo (§10).
-- Kairos gestiona su propio desarrollo desde que tenga lo mínimo (etapa 1).
-- Huella pequeña: poca RAM y CPU, sin sacrificar funcionalidad.
-- Repo optimizado para trabajar con Claude Code y varios agentes (§12).
-- Calidad profesional visible: tests, CI, ADR, documentación.
+**Goals**
+- A precise model and agent control as described in §1.
+- A dashboard as the landing screen, to see the whole picture at a glance (§10).
+- Kairos manages its own development as soon as it has the minimum (stage 1).
+- Small footprint: little RAM and CPU, without sacrificing features.
+- A repo optimized for working with Claude Code and several agents (§12).
+- Visible professional quality: tests, CI, ADRs, documentation.
 
-**No-objetivos (por ahora)**
-- Varios usuarios humanos; acceso móvil; edición sin conexión o sincronización entre dispositivos.
-- Otro idioma de interfaz que no sea español.
-- Exposición a internet o despliegue en el servidor casero.
-- Llamar a la API de Anthropic (el usuario usa cuota de Claude Pro).
-- Ejecución automática de agentes (llega con el *runner*, etapa 4).
+**Non-goals (for now)**
+- Several human users; mobile access; offline editing or sync between devices.
+- Any UI language other than English (strings live in a message catalog so another can be added later).
+- Exposure to the internet or deployment on the home server.
+- Calling the Anthropic API (the owner uses a Claude Pro quota).
+- Automatic agent execution (arrives with the *runner*, stage 4).
 
-**Anti-objetivos (fracaso aunque «funcione»)**
-- Un candado cosmético: reglas que viven solo en la UI y que un agente puede saltarse por otra entrada.
-- Un repo que solo funciona en el camino feliz o sin pruebas.
-- Complejidad por encima de la escala (microservicios, PostgreSQL, Kubernetes).
-- Depender de la API de pago.
+**Anti-goals (a failure even if it "works")**
+- A cosmetic lock: rules that live only in the UI and that an agent can skip through another entry point.
+- A repo that only works on the happy path or without tests.
+- Complexity beyond the scale (microservices, PostgreSQL, Kubernetes).
+- Depending on the paid API.
 
-## 4. Restricciones
+## 4. Constraints
 
-- Windows 11 con Docker Desktop; todo en `localhost`. Python 3.13, Node 24, pnpm y `gh` ya instalados; **`uv` no está instalado**.
-- UI de escritorio, en español, modo oscuro.
-- Base de datos local (SQLite, ADR-0002), accesible para los agentes a través de Kairos y no directamente.
-- Tecnologías web: TypeScript, Python, SQL.
-- Repo público en GitHub, licencia MIT, `main` sin protección hasta que el usuario importe el ruleset.
+- Windows 11 with Docker Desktop; everything on `localhost`. Python 3.13, Node 24, pnpm and `gh` are already installed; **`uv` is not installed**.
+- Desktop UI, **English**, dark mode. The owner first asked for a Spanish UI and later instructed that everything except the chat with them is in English; the later instruction wins. **(my call: keep strings in a message catalog so Spanish can be added back cheaply.)**
+- Local database (SQLite, ADR-0002), reachable by agents through Kairos, not directly.
+- Web technologies: TypeScript, Python, SQL.
+- Public GitHub repo, MIT license, `main` unprotected until the owner imports the ruleset.
 
-## 5. Enfoques considerados
+## 5. Approaches considered
 
-Detalle y consecuencias en ADR-0001.
+Detail and consequences in ADR-0001.
 
-| Enfoque | Resultado |
+| Approach | Outcome |
 |---|---|
-| A. TypeScript de punta a punta | Recomendado por mí: un solo lenguaje y un solo esquema de contratos. **No elegido.** |
-| **B. Backend Python + frontend React, un contenedor** | **Elegido por el usuario.** Mejor ecosistema LLM/MCP y aprovecha Python. Costo: dos lenguajes; se mitiga generando los tipos TS desde OpenAPI (Pydantic es la fuente) y comprobando la deriva en CI. |
-| C. Servicios separados + PostgreSQL | Descartado: más contenedores y RAM sin beneficio a esta escala. |
-| PHP / Laravel | Descartado: MCP y tiempo real encajan peor. |
+| A. TypeScript end to end | Recommended by me: one language and one contract definition. **Not chosen.** |
+| **B. Python backend + React frontend, one container** | **Chosen by the owner.** Better LLM/MCP ecosystem and uses Python. Cost: two languages; mitigated by generating the TS types from OpenAPI (Pydantic is the source) and checking drift in CI. |
+| C. Separate services + PostgreSQL | Rejected: more containers and RAM with no benefit at this scale. |
+| PHP / Laravel | Rejected: MCP and real time fit worse. |
 
-## 6. Modelo de dominio
+## 6. Domain model
 
-### 6.1 Jerarquía y comportamiento de cada clase
-Proyecto › Épica › Tarea › Subtarea. Una tarea puede colgar directamente de un proyecto, sin épica. Cómo se modelan en tablas se deja al constructor (recomendación: una tabla `items` con `kind` y `parent_id`). Cada clase se comporta distinto **(mi llamada)**:
+### 6.1 Hierarchy and per-class behavior
+Project › Epic › Task › Subtask. A task may hang directly from a project, without an epic. How they map to tables is left to the builder (recommendation: one `items` table with `kind` and `parent_id`). Each class behaves differently **(my call)**:
 
-- **Proyecto:** ciclo propio (activo, en cola, pausado, archivado) y un atributo **área** (lista editable, por ejemplo Personal, Desarrollo). Sin criterios ni revisión.
-- **Épica:** agrupa tareas. Sin asignación, criterios ni revisión. Su estado se **deriva** de sus hijos: sin empezar, en curso, o completa cuando todas sus tareas están hechas o canceladas.
-- **Tarea:** la unidad asignable. Usa los siete estados, criterios y revisión. **Es la única clase que cuenta** para «una en curso por agente».
-- **Subtarea:** paso de una tarea, con estado simple (pendiente o hecha) y sin asignación propia: la lleva quien lleve la tarea. Una tarea no puede pasar a `in_review` con subtareas pendientes.
+- **Project:** its own lifecycle (active, queued, paused, archived) and an **area** attribute (editable list, for example Personal, Development). No criteria or review.
+- **Epic:** groups tasks. No assignment, criteria or review. Its status is **derived** from its children: not started, in progress, or complete when all its tasks are done or cancelled.
+- **Task:** the assignable unit. Uses the seven statuses, criteria and review. **It is the only class that counts** toward "one in progress per agent".
+- **Subtask:** a step of a task, with a simple status (pending or done) and no assignment of its own: whoever carries the task carries it. A task cannot move to `in_review` with pending subtasks.
 
-### 6.2 Campos y tipos
-**Campos base** de una tarea: título, descripción, tipo, prioridad (P0–P3), etiquetas libres, padre (proyecto o épica), fechas (§6.7), dependencias, criterios de aceptación, asignado y resumen de entrega. **Categorizar** una tarea es combinar proyecto (con su área), tipo, etiquetas y prioridad **(mi llamada)**.
+### 6.2 Fields and types
+**Base fields** of a task: title, description, type, priority (P0–P3), free labels, parent (project or epic), dates (§6.7), dependencies, acceptance criteria, assignee and delivery summary. **Categorizing** a task means combining project (with its area), type, labels and priority **(my call)**.
 
-Un **tipo** (bug, feature, chore, investigación, personal…) define **cuáles de los campos base son obligatorios** y una plantilla de criterios de aceptación. Los tipos son datos editables, no código. **Decidido con el usuario: lista fija de campos en la etapa 1.** Los campos propios por tipo quedan como idea futura (`IDEA-15` en `FEATURES.md`).
+A **type** (bug, feature, chore, research, personal…) defines **which of the base fields are required** and a template of acceptance criteria. Types are editable data, not code. **Decided with the owner: a fixed field list in stage 1.** Custom fields per type remain a future idea (`IDEA-15` in `FEATURES.md`).
 
-### 6.3 Estados guardados y transiciones
+### 6.3 Stored statuses and transitions
 
-`proposed → backlog → ready → in_progress → in_review → done`, más `cancelled`. En la UI: Propuesta, Backlog, Lista, En curso, En revisión, Hecha, Cancelada.
+`proposed → backlog → ready → in_progress → in_review → done`, plus `cancelled`. In the UI: Proposal, Backlog, Ready, In progress, In review, Done, Cancelled.
 
-**Bloqueada no es un estado guardado:** es derivada. Una tarea con dependencias abiertas se muestra bloqueada y no puede pasar a `in_progress`.
+**Blocked is not a stored status:** it is derived. A task with open dependencies is shown as blocked and cannot move to `in_progress`.
 
-| Acción | Usuario | Orquestador | Agente |
+| Action | Owner | Orchestrator | Agent |
 |---|---|---|---|
-| Crear (siempre como `proposed` si lo crea un agente) | sí | sí | sí, solo como propuesta |
-| `proposed → backlog` (triaje) | sí | sí | no |
-| `backlog → ready` | sí | sí | no |
-| Asignar a un agente (asignar ya es reservar) | sí | sí | no |
-| `ready → in_progress` | sí | no | sí, solo si está asignada a él |
-| `in_progress → in_review` | sí | no | sí, si pasa los candados |
-| `in_review → done` (aprobar) | sí | **no** | **no** |
-| Devolver una entrega con comentario (`in_review → ready`, **conserva la asignación**) | sí | no | no |
-| Liberar una tarea (`in_progress → ready`, **quita la asignación**) | sí | sí | sí, con motivo |
-| Mover hacia atrás (por ejemplo `ready → backlog`, arrastrando en el tablero) | sí | no | no |
-| Descartar una propuesta (`proposed → cancelled`) | sí | **no** | no |
-| Reabrir `done` o `cancelled` (a `backlog` o `ready`, con motivo) | sí | no | no |
-| Cancelar | sí | **no** | solo solicita (§6.6) |
-| Borrar | sí | **no** | **no** |
-| Cambiar permisos, tokens, automatizaciones | sí | **no** | **no** |
+| Create (always as `proposed` if an agent creates it) | yes | yes | yes, only as a proposal |
+| `proposed → backlog` (triage) | yes | yes | no |
+| `backlog → ready` | yes | yes | no |
+| Assign to an agent (assigning is reserving) | yes | yes | no |
+| `ready → in_progress` | yes | no | yes, only if assigned to it |
+| `in_progress → in_review` | yes | no | yes, if it passes the gates |
+| `in_review → done` (approve) | yes | **no** | **no** |
+| Return a delivery with a comment (`in_review → ready`, **keeps the assignment**) | yes | no | no |
+| Release a task (`in_progress → ready`, **removes the assignment**) | yes | yes | yes, with a reason |
+| Move backwards (for example `ready → backlog`, dragging on the board) | yes | no | no |
+| Discard a proposal (`proposed → cancelled`) | yes | **no** | no |
+| Reopen `done` or `cancelled` (to `backlog` or `ready`, with a reason) | yes | no | no |
+| Cancel | yes | **no** | only requests (§6.6) |
+| Delete | yes | **no** | **no** |
+| Change permissions, tokens, automations | yes | **no** | **no** |
 
-El usuario también puede trabajar en una tarea a la vez que un agente, pero **nunca hay más de un agente activo** en la misma tarea.
+The owner can also work on a task at the same time as an agent, but there is **never more than one active agent** on the same task.
 
-### 6.4 Candados (automáticos)
-Para pasar a `in_review`: campos obligatorios del tipo completos, **todos los criterios con evidencia**, sin dependencias abiertas y un resumen de entrega no vacío. Si falla, el sistema rechaza la acción y dice por qué.
-Para pasar a `in_progress`: la tarea está asignada al actor, no tiene dependencias abiertas y el agente no tiene otra tarea en curso.
-Para pasar a `ready`: al menos **un criterio de aceptación**, de modo que «todos los criterios con evidencia» nunca sea vacío **(mi llamada)**.
+### 6.4 Gates (automatic)
+To move to `in_review`: required fields of the type complete, **every criterion with evidence**, no open dependencies and a non-empty delivery summary. If it fails, the system rejects the action and says why.
+To move to `in_progress`: the task is assigned to the actor, has no open dependencies and the agent has no other task in progress.
+To move to `ready`: at least **one acceptance criterion**, so "every criterion has evidence" is never vacuous **(my call)**.
 
-**Los candados obligan siempre a agentes y orquestador.** El usuario puede **forzarlos** indicando un motivo, que queda en el historial como `gate_overridden` **(mi llamada)**.
+**Gates always bind agents and the orchestrator.** The owner can **override** them by giving a reason, which is recorded in the history as `gate_overridden` **(my call)**.
 
-### 6.5 Criterios, evidencia y avance
-Cada tarea tiene criterios de aceptación; cada criterio se marca cumplido con una **evidencia** (texto, enlace o salida de un comando). **Avance** de una hoja = criterios cumplidos / total (100 % si está hecha). Los contenedores promedian a sus hijos (fórmula exacta, al plan).
+### 6.5 Criteria, evidence and progress
+Every task has acceptance criteria; each criterion is met by attaching **evidence** (text, link or command output). **Progress** of a leaf = criteria met / total (100% if done). Containers average their children (exact formula left to the plan).
 
-**Quién escribe los criterios (mi llamada).** Los define el usuario o el orquestador, o salen de la plantilla del tipo. Un agente puede *redactarlos dentro de una propuesta*; una vez promovida, **no puede añadir, editar ni borrar criterios: solo adjuntar evidencia**. En una tarea suya, un agente puede cambiar únicamente comentarios, evidencias, resumen de entrega y notas de trabajo; ni título, tipo, prioridad, fechas, padre ni dependencias.
+**Who writes the criteria (my call).** The owner or the orchestrator define them, or they come from the type's template. An agent may *draft them inside a proposal*; once promoted, it **cannot add, edit or delete criteria: it can only attach evidence**. On its own task, an agent may change only comments, evidence, delivery summary and working notes; not title, type, priority, dates, parent or dependencies.
 
-### 6.6 Solicitudes de aprobación
-Como un PR: un agente que quiera cancelar o cerrar una tarea crea una **solicitud** con descripción y motivo; queda pendiente hasta que el usuario la aprueba o rechaza (con nota). Pasar a `in_review` crea implícitamente la solicitud de aprobación de la entrega.
+### 6.6 Approval requests
+Like a PR: an agent that wants to cancel or close a task creates a **request** with a description and a reason; it stays pending until the owner approves or rejects it (with a note). Moving to `in_review` implicitly creates the approval request for the delivery.
 
-### 6.7 Dependencias, fechas y recurrencia
-Dependencias «bloquea a», sin ciclos. Una dependencia **cancelada cuenta como resuelta** y el usuario recibe un aviso **(mi llamada)**. Fechas con semántica: inicio, vencimiento y recurrencia (el modelo la guarda desde la etapa 1; el motor que genera instancias llega en la etapa 3).
+### 6.7 Dependencies, dates and recurrence
+"Blocks" dependencies, no cycles. A **cancelled dependency counts as resolved** and the owner gets a warning **(my call)**. Dates with semantics: start, due date and recurrence (the model stores it from stage 1; the engine that generates instances arrives in stage 3).
 
-### 6.8 Asignación
-Un agente no se auto-asigna: empieza solo lo que le asignó el orquestador o el usuario. **No existe una «reserva» aparte:** asignar ya es reservar. Invariantes que impone el dominio **también al orquestador**: una tarea `in_progress` por agente, un agente activo por tarea, tipo y proyecto dentro del alcance del agente, sin dependencias abiertas.
+### 6.8 Assignment
+An agent does not self-assign: it starts only what the orchestrator or the owner assigned. **There is no separate "reservation":** assigning already reserves. Invariants the domain enforces **on the orchestrator too**: one `in_progress` task per agent, one active agent per task, task type and project within the agent's scope, no open dependencies.
 
-**Cola.** Decidido con el usuario: un agente **no está limitado a una sola tarea asignada**. Puede tener una cola de hasta 3 tareas asignadas (límite configurable por agente **(mi llamada)**) pero **una sola `in_progress`**. Las tareas en `in_review`, que esperan tu aprobación, no cuentan para el límite.
+**Queue.** Decided with the owner: an agent is **not limited to a single assigned task**. It may have a queue of up to 3 assigned tasks (limit configurable per agent **(my call)**) but **only one `in_progress`**. Tasks in `in_review`, waiting for the owner's approval, do not count toward the limit.
 
-**Subagentes en tareas grandes.** El usuario pidió poder usar «un par de subagentes o más» en tareas grandes. **Mi interpretación:** un agente puede apoyarse en subagentes de su propia sesión. Kairos los trata como el **mismo agente** (sin permisos extra, y sigue habiendo un único agente activo por tarea) y registra en el historial qué subagente hizo cada cosa, solo como atribución. Que cada subagente tenga token propio depende del spike (ADR-0005).
+**Subagents on large tasks.** The owner asked to be able to use "a couple of subagents or more" on large tasks. **My interpretation:** an agent may lean on subagents of its own session. Kairos treats them as the **same agent** (no extra permissions, and there is still a single active agent per task) and records in the history which subagent did what, as attribution only. Whether each subagent has its own token depends on the spike (ADR-0005).
 
-### 6.9 Visibilidad
-- **Agente:** ve sus tareas asignadas completas, más el contexto mínimo para trabajar: proyecto o épica padre (título y resumen) y, de lo que lo bloquea, id, título y estado. No ve el contenido de las tareas de otros agentes.
-- **Orquestador:** ve todas las tareas (necesita repartir) y los perfiles de los agentes, nunca los tokens.
-- **Usuario:** ve todo.
+### 6.9 Visibility
+- **Agent:** sees its assigned tasks in full, plus the minimum context to work: parent project or epic (title and summary) and, for what blocks it, id, title and status. It does not see the content of other agents' tasks.
+- **Orchestrator:** sees all tasks (it needs to distribute them) and the agents' profiles, never the tokens.
+- **Owner:** sees everything.
 
-### 6.10 Historial
-Registro de eventos inmutable, solo-anexar, encadenado por hash (ADR-0006). Cada evento guarda quién (usuario, qué agente) y por qué.
+### 6.10 History
+Immutable, append-only, hash-chained event log (ADR-0006). Every event stores who (owner, which agent) and why.
 
-## 7. Arquitectura
+## 7. Architecture
 
-Un contenedor con un proceso FastAPI que expone:
+One container with one FastAPI process that exposes:
 
-- **REST** `/api/*` para la UI, con sesión del usuario.
-- **MCP** `/mcp` (Streamable HTTP) para los agentes, con token por agente (ADR-0005).
-- **SSE** para actualizaciones en vivo de la UI.
-- La SPA de React como archivos estáticos.
+- **REST** `/api/*` for the UI, with the owner's session.
+- **MCP** `/mcp` (Streamable HTTP) for agents, with a per-agent token (ADR-0005).
+- **SSE** for live UI updates.
+- The React SPA as static files.
 
-Capas del backend (ADR-0003): `domain/` (puro: estados, candados, permisos), `features/<x>/` (casos de uso, repositorio, rutas, herramientas MCP y tests juntos) y `adapters/`. Los contratos son modelos Pydantic; el frontend recibe tipos TypeScript generados desde OpenAPI (ADR-0001). Defensa en profundidad: índice único parcial «un `in_progress` por agente» y triggers que prohíben modificar `events` (ADR-0002).
+Backend layers (ADR-0003): `domain/` (pure: statuses, gates, permissions), `features/<x>/` (use cases, repository, routes, MCP tools and tests together) and `adapters/`. Contracts are Pydantic models; the frontend gets TypeScript types generated from OpenAPI (ADR-0001). Defense in depth: a partial unique index "one `in_progress` per agent" and triggers that forbid modifying `events` (ADR-0002).
 
-## 8. Interfaz de agentes (MCP)
+## 8. Agent interface (MCP)
 
-Herramientas previstas (nombres exactos, al plan):
-- **Agente:** consultar su contexto y sus tareas, ver una tarea, empezarla, liberarla con motivo, comentar, actualizar campos permitidos, registrar evidencia en un criterio, enviar a revisión con resumen, proponer una tarea, solicitar cancelación.
-- **Orquestador (añade):** listar todas las tareas y agentes, asignar, triar propuestas, partir una épica en propuestas.
+Planned tools (exact names left to the plan):
+- **Agent:** get its context and tasks, view a task, start it, release it with a reason, comment, update permitted fields, record evidence on a criterion, submit for review with a summary, propose a task, request cancellation.
+- **Orchestrator (adds):** list all tasks and agents, assign, triage proposals, split an epic into proposals.
 
-El spike (ADR-0005) valida la autenticación antes de fijar este diseño.
+The spike (ADR-0005) validates authentication before this design is fixed.
 
-## 9. Seguridad
+## 9. Security
 
-- El puerto escucha solo en `127.0.0.1`; se validan `Origin` y `Host` (protección frente a DNS rebinding).
-- **Usuario:** contraseña con argon2id, cookie de sesión `HttpOnly` y `SameSite=Strict`, protección CSRF y límite de intentos. Passkeys como refuerzo posterior **(mi llamada)**. La cuenta inicial se crea con un comando local, una sola vez **(mi llamada)**.
-- **Agentes:** token aleatorio de 256 bits, guardado solo como hash, con alcance y revocable, y `last_used_at`. Se muestra una sola vez al crearlo. Un token de agente no sirve en los endpoints del usuario, ni al revés.
-- Ningún secreto en el repo; el token del agente llega por variable de entorno.
-- Contenedor sin root, sistema de archivos de solo lectura salvo el volumen de datos.
+- The port listens only on `127.0.0.1`; `Origin` and `Host` are validated (DNS-rebinding protection).
+- **Owner:** password with argon2id, `HttpOnly` and `SameSite=Strict` session cookie, CSRF protection and attempt limiting. Passkeys as a later hardening **(my call)**. The initial account is created with a one-time local command **(my call)**.
+- **Agents:** 256-bit random token, stored only as a hash, scoped and revocable, with `last_used_at`. Shown once at creation. An agent token is useless on the owner's endpoints, and vice versa.
+- No secrets in the repo; the agent token arrives through an environment variable.
+- Non-root container with a read-only filesystem except the data volume.
 
-## 10. Dashboard y vistas
+## 10. Dashboard and views
 
-Pantalla de entrada: dashboard con las métricas principales, los proyectos activos y los pendientes. Lo que debe responder de un vistazo:
+Landing screen: a dashboard with the main metrics, the active projects and the pending ones. At a glance it must answer:
 
-1. **Esperando tu aprobación:** entregas y solicitudes pendientes. Va primero, porque es lo que frena a los agentes.
-2. **Proyectos activos** con % de avance, y aparte los proyectos en cola.
-3. **Bloqueadas y atrasadas.**
-4. **Qué hace cada agente ahora**, en vivo.
-5. **Actividad reciente**, tomada del historial.
+1. **Waiting for your approval:** deliveries and requests pending. It goes first because it is what stalls the agents.
+2. **Active projects** with progress %, and separately the queued projects.
+3. **Blocked and overdue.**
+4. **What each agent is doing now**, live.
+5. **Recent activity**, taken from the history.
 
-**Tablero kanban** adaptado: columnas por estado, filtrables por proyecto, tipo, estado de sus subtareas, agente y % de avance. En la etapa 1 existe una **lista simple** de tareas como UI mínima para el dogfooding **(mi llamada)**; el calendario y la línea de tiempo quedan fuera hasta que se pidan.
+**Kanban board**, adapted: columns by status, filterable by project, type, subtask status, agent and progress %. In stage 1 a **simple task list** exists as the minimal UI for dogfooding **(my call)**; calendar and timeline stay out until requested.
 
-**Look:** «mitológico pero simple», modo oscuro. Se diseña con mockups en la etapa 2; ahora solo se reserva que los colores y la tipografía sean tokens de tema reemplazables.
+**Look:** "mythological but simple", dark mode. Designed with mockups in stage 2; for now it only reserves that colors and typography are replaceable theme tokens.
 
-## 11. PWA y tiempo real
+## 11. PWA and real time
 
-PWA de escritorio instalable (`localhost` cuenta como contexto seguro, sin HTTPS): manifiesto y service worker para el shell. Sin modo sin conexión de los datos (no-objetivo). Los cambios que hacen los agentes aparecen en pantalla por SSE, sin recargar.
+An installable desktop PWA (`localhost` counts as a secure context, no HTTPS): manifest and service worker for the shell. No offline data mode (non-goal). Changes made by agents appear on screen through SSE, without reloading.
 
-## 12. Repo optimizado para Claude Code
+## 12. Repo optimized for Claude Code
 
-- `CLAUDE.md` raíz corto (mapa, reglas de oro, flujo git) y `CLAUDE.md` por módulo cuando haga falta; `.claude/rules/` con alcance por ruta.
-- Estructura por funcionalidad y archivos pequeños: un agente trabaja en una sola carpeta sin cargar el resto.
-- `.claude/agents/` (orquestador, backend, frontend, bugs, revisor), `.claude/skills/` con procedimientos repetibles (nueva migración, nueva herramienta MCP) y hooks para lo que no puede romperse (formato, bloqueo de comandos destructivos, recordatorio de actualizar `docs/STATUS.md`).
-- Un comando único `check` (lint, tipos, tests de backend y frontend) como bucle de verificación.
-- Un git worktree por agente (ADR-0004).
-- `docs/` como memoria del proyecto: estado, roadmap, glosario, ideas, ADR y tareas de arranque.
-- Kairos se conecta a sí mismo por `.mcp.json` desde la etapa 1.
+- A short root `CLAUDE.md` (map, golden rules, git flow) and a per-module `CLAUDE.md` when needed; `.claude/rules/` scoped by path.
+- Structure by feature and small files: an agent works in a single folder without loading the rest.
+- `.claude/agents/` (orchestrator, backend, frontend, bugs, reviewer), `.claude/skills/` with repeatable procedures (new migration, new MCP tool) and hooks for what must never break (formatting, blocking destructive commands, a reminder to update `docs/STATUS.md`).
+- A single `check` command (lint, types, backend and frontend tests) as the verification loop.
+- One git worktree per agent (ADR-0004).
+- `docs/` as the project's memory: status, roadmap, glossary, ideas, ADRs and bootstrap tasks.
+- Kairos connects to itself through `.mcp.json` from stage 1.
 
-## 13. Automatizaciones (etapa 3; el modelo de eventos las prepara desde la 1)
+## 13. Automations (stage 3; the event model prepares them from stage 1)
 
-- Flujos definidos como **JSON versionado y validado** con Pydantic: disparador (evento o cron) → condiciones → acciones (crear o mover una tarea, notificar, webhook).
-- **Tres modos de edición sobre el mismo JSON:** constructor visual, archivo declarativo y API (los agentes pueden diseñarlos).
-- Programación con un scheduler en el proceso; recordatorios y notificaciones; webhooks de salida.
-- **Ejecución de agentes:** no puede lanzarse desde dentro del contenedor porque Claude Code vive en Windows. Hará falta un *runner* en el host (etapa 4), con límites y aprobación previa.
+- Workflows defined as **versioned, validated JSON** (Pydantic): trigger (event or cron) → conditions → actions (create or move a task, notify, webhook).
+- **Three editing modes over the same JSON:** visual builder, declarative file and API (agents can design them).
+- Scheduling with an in-process scheduler; reminders and notifications; outgoing webhooks.
+- **Agent execution:** it cannot be launched from inside the container because Claude Code lives on Windows. A *runner* on the host (stage 4) is needed, with limits and prior approval.
 
-## 14. Calidad y entrega
+## 14. Quality and delivery
 
-- Pirámide de pruebas: unitarias y de propiedades (Hypothesis) sobre `domain/`, integración con SQLite en memoria, pruebas de contrato del MCP con un cliente real, y e2e con Playwright.
-- TDD rojo/verde en cada funcionalidad.
-- CI: un job `check` en GitHub Actions que ejecuta el mismo `check` local, más comprobación de deriva de tipos generados, construcción de la imagen y Dependabot (`pip`, `npm`, `docker`, `github-actions`), todo en su propio PR.
-- Imagen Docker multi-stage, usuario sin root, healthcheck.
+- Test pyramid: unit and property-based tests (Hypothesis) on `domain/`, integration with in-memory SQLite, MCP contract tests with a real client, and e2e with Playwright.
+- Red/green TDD for every feature.
+- CI: a `check` job in GitHub Actions that runs the same local `check`, plus a generated-types drift check, an image build and Dependabot (`uv`, `npm`, `docker`, `github-actions`), each in its own PR.
+- Multi-stage Docker image, non-root user, healthcheck.
 
-## 15. Etapas
+## 15. Stages
 
-Resumen; el estado vivo está en [`docs/ROADMAP.md`](../../ROADMAP.md).
+Summary; the live status is in [`docs/ROADMAP.md`](../../ROADMAP.md).
 
-0. **Fundaciones y spike:** tooling, estructura, `check`, Docker, `.claude/`, CI, spike MCP.
-1. **Núcleo «dogfood-ready»:** dominio con el **modelo completo de jerarquía, dependencias y fechas** (los candados y el contexto del agente lo necesitan), persistencia con historial, REST y MCP con tokens, orquestador, UI mínima con lista simple y cola de aprobaciones. *Desde aquí los agentes usan Kairos para construir Kairos.*
-2. **Tablero y dashboard:** kanban filtrable, vistas de jerarquía, dependencias y fechas, dashboard, SSE, look.
-3. **Automatizaciones:** motor, cron, notificaciones, webhooks, constructor visual.
-4. **Ejecución y endurecimiento:** runner, passkeys, backups, README de portfolio.
+0. **Foundations and spike:** tooling, structure, `check`, Docker, `.claude/`, CI, MCP spike.
+1. **"Dogfood-ready" core:** domain with the **full hierarchy, dependency and date model** (gates and agent context need it), persistence with history, REST and MCP with tokens, orchestrator, minimal UI with a simple list and the approval queue. *From here on, agents use Kairos to build Kairos.*
+2. **Board and dashboard:** filterable kanban, hierarchy, dependency and date views, dashboard, SSE, look.
+3. **Automations:** engine, cron, notifications, webhooks, visual builder.
+4. **Execution and hardening:** runner, passkeys, backups, portfolio README.
 
-## 16. Riesgos
+## 16. Risks
 
-- **Autenticación MCP en Windows** (ADR-0005): se descarta o confirma con el spike, antes de fijar la etapa 1.
-- **Token por subagente:** si no es posible, «un agente» será «una sesión de Claude Code» y el diseño de roles se adapta.
-- **Deriva de contratos entre dos lenguajes:** generación de tipos y comprobación en CI.
-- **SQLite en Docker Desktop:** solo con volumen nombrado (ADR-0002).
-- **Cuota de Claude Pro:** un orquestador que corra en bucle la consumiría; corre a demanda.
+- **MCP authentication on Windows** (ADR-0005): ruled out or confirmed by the spike, before stage 1 is fixed.
+- **Per-subagent token:** if it is not possible, "one agent" means "one Claude Code session" and the role design adapts.
+- **Contract drift between two languages:** type generation and a CI check.
+- **SQLite on Docker Desktop:** only with a named volume (ADR-0002).
+- **Claude Pro quota:** an orchestrator running in a loop would burn it; it runs on demand.
 
-## 17. Mis llamadas (no acordadas; el usuario puede cambiarlas)
+## 17. My calls (not agreed; the owner may change them)
 
-- Idioma: código, commits, PR, ADR y README en inglés; docs de trabajo y `CLAUDE.md` en español.
-- Historial encadenado por hash (ADR-0006) y comando `verify`.
-- pyright en modo estricto y Ruff; Biome en el frontend; pnpm.
-- Autenticación del usuario: contraseña + sesión en el MVP; passkeys después. Cuenta inicial creada por comando local.
-- «Bloqueada» como estado derivado, no guardado.
-- Un agente no se auto-asigna; el orquestador puede triar (promover) propuestas pero **no** descartarlas: descartar es del usuario.
-- Propuestas de agentes: cualquier agente puede crearlas dentro de su alcance.
-- Rama única `main` + ramas cortas con squash, y worktree por agente (ADR-0004).
-- El orquestador corre a demanda, no en bucle.
-- Comportamiento por clase de ítem, campos base y categorización por proyecto + área + tipo + etiquetas + prioridad (§6.1, §6.2).
-- Un agente solo adjunta evidencia; no edita criterios tras el triaje; una tarea necesita al menos un criterio para pasar a `ready` (§6.4, §6.5).
-- Devolver una entrega la pasa a `ready` conservando la asignación; liberar una tarea quita la asignación (§6.3).
-- Descartar una propuesta y reabrir tareas cerradas son solo del usuario; el usuario puede forzar candados con motivo registrado.
-- Una dependencia cancelada cuenta como resuelta, con aviso.
-- Sin «reserva» aparte: asignar ya es reservar.
-- Etapa 1 con el modelo completo de jerarquía y una lista simple; kanban en la etapa 2.
+- Language: chat with the owner in Spanish; everything else, UI included, in English; strings in a message catalog (§4).
+- Hash-chained history (ADR-0006) and a `verify` command.
+- pyright in strict mode and Ruff; Biome on the frontend; pnpm.
+- Owner authentication: password + session in the MVP; passkeys later. Initial account created by a local command.
+- "Blocked" as a derived status, not a stored one.
+- An agent does not self-assign; the orchestrator may triage (promote) proposals but **not** discard them: discarding is the owner's.
+- Agent proposals: any agent may create them within its scope.
+- A single `main` + short branches with squash, and a worktree per agent (ADR-0004).
+- The orchestrator runs on demand, not in a loop.
+- Behavior per item class, base fields and categorization by project + area + type + labels + priority (§6.1, §6.2).
+- An agent only attaches evidence; it does not edit criteria after triage; a task needs at least one criterion to move to `ready` (§6.4, §6.5).
+- Returning a delivery moves it to `ready` keeping the assignment; releasing a task removes the assignment (§6.3).
+- Discarding a proposal and reopening closed tasks are the owner's only; the owner may override gates with a recorded reason.
+- A cancelled dependency counts as resolved, with a warning.
+- No separate "reservation": assigning already reserves; the queue limit of 3 is configurable per agent.
+- Stage 1 includes the full hierarchy model and a simple list; kanban in stage 2.
 
-## 17.1 Resuelto con el usuario tras la revisión del spec
+### 17.1 Resolved with the owner after the spec review
 
-1. **Tareas por agente** (§6.8): no solo una. Cola corta de asignadas, una sola en curso, y subagentes de apoyo en tareas grandes (la lectura de los subagentes es mía; ver §6.8).
-2. **Campos propios por tipo** (§6.2): lista fija en la etapa 1; campos propios más adelante.
+1. **Tasks per agent** (§6.8): not just one. A short queue of assigned tasks, a single one in progress, and supporting subagents on large tasks (my reading of the subagent request; see §6.8).
+2. **Custom fields per type** (§6.2): a fixed list in stage 1; custom fields later.
 
-No quedan preguntas abiertas del spec.
+No spec questions remain open.
 
-## 18. Se deja al constructor
+## 18. Left to the builder
 
-Versiones exactas de dependencias; ORM síncrono o asíncrono (recomendación: síncrono para SQLite, con SSE asíncrono sobre un bus de eventos en memoria); nombres de tablas, columnas y herramientas MCP; formulación exacta del avance de contenedores; ejecutor del comando `check` multiplataforma (candidatos: `poethepoet` o `just`); estructura exacta de carpetas dentro de cada funcionalidad; configuración de Tailwind y tokens de tema.
+Exact dependency versions; synchronous or asynchronous ORM (recommendation: synchronous for SQLite, with asynchronous SSE over an in-memory event bus); table, column and MCP tool names; the exact container progress formula; the cross-platform `check` runner (the plan fixes it: a stdlib Python script); the exact folder structure inside each feature; Tailwind configuration and theme tokens.

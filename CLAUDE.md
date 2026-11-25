@@ -1,73 +1,74 @@
 # Kairos
 
-Tablero de tareas **preciso y gobernado** para una persona y sus agentes de Claude Code. Corre en Docker sobre Windows (`localhost`), es una PWA de escritorio en español con modo oscuro, y se usa a sí mismo para gestionar su propio desarrollo. El repo es público: también es una muestra de ingeniería profesional.
+A **precise, governed** task board for one person and their Claude Code agents. It runs in Docker on Windows (`localhost`), is a desktop PWA with a dark theme, and manages its own development. The repo is public: it doubles as a showcase of professional engineering.
 
-## Leé esto antes de actuar
+## Read this before acting
 
-1. `docs/STATUS.md`: dónde estamos y qué sigue. **Al cerrar cada bloque de trabajo, reescribilo.**
-2. `docs/superpowers/specs/`: el diseño vigente. `docs/adr/`: decisiones y su porqué. `docs/GLOSSARY.md`: vocabulario.
-3. Para proponer mejoras: `docs/FEATURES.md` (ahí se explican las «pasadas»).
+1. `docs/STATUS.md`: where we are and what comes next. **Rewrite it when you close each block of work.**
+2. `docs/superpowers/specs/`: the current design. `docs/adr/`: decisions and their reasons. `docs/GLOSSARY.md`: vocabulary.
+3. To propose improvements: `docs/FEATURES.md` (it explains the "review passes").
 
-## Cómo se trabaja (superpowers)
+## How we work (superpowers)
 
-brainstorming → spec aprobado → writing-plans → TDD (rojo/verde) → verificación antes de dar nada por hecho.
+brainstorming → approved spec → writing-plans → TDD (red/green) → verification before claiming anything is done.
 
-- **No se escribe código de producto sin spec aprobado y plan.**
-- No se afirma que algo funciona sin haber ejecutado el comando de verificación y leído su salida.
+- **No product code without an approved spec and a plan.**
+- Never claim something works without running the verification command and reading its output.
 
-## Estado del código
+## Code status
 
-Todavía no hay código. Stack decidido (ADR-0001): backend Python (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), frontend React + Vite + TypeScript, un solo contenedor Docker. Los comandos (`check`, tests, arranque) se documentarán aquí cuando existan: **no inventes comandos que no estén listados**.
+There is no code yet. Decided stack (ADR-0001): Python backend (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), React + Vite + TypeScript frontend, one Docker container. Commands (`check`, tests, startup) will be documented here once they exist: **do not invent commands that are not listed**.
 
-## Mapa previsto del repo (lo que ya existe está marcado)
+## Planned repo map (what already exists is marked)
 
 ```
-CLAUDE.md                ✓  este archivo
-docs/                    ✓  contexto, estado, roadmap, ADR, specs, planes
-.claude/                    agents/ · skills/ · rules/ · settings.json   (etapa 0)
-.mcp.json                   Kairos conectado a sí mismo                   (etapa 1)
-backend/                    Python: domain/ (puro) · features/ · adapters/
+CLAUDE.md                ✓  this file
+docs/                    ✓  context, status, roadmap, ADRs, specs, plans
+.claude/                    agents/ · skills/ · rules/ · settings.json   (stage 0)
+.mcp.json                   Kairos connected to itself                    (stage 1)
+backend/                    Python: domain/ (pure) · features/ · adapters/
 frontend/                   React: features/ (dashboard, board, task, agents)
-e2e/                        Playwright
-Dockerfile · compose.yaml   un solo contenedor
-.github/                    CI, Dependabot, plantilla de PR               (etapa 0)
+tools/                      repo tooling: check, type generation, hooks   (stage 0)
+Dockerfile · compose.yaml   a single container
+.github/                    CI, Dependabot, PR template                   (stage 0)
 ```
 
-## Reglas de oro (no negociables)
+## Golden rules (non-negotiable)
 
-1. **Puerta única.** UI, MCP y automatizaciones llaman a los mismos casos de uso con un `Actor` (humano, agente u orquestador). Candados y permisos viven en `domain/`; ninguna entrada puede saltárselos, ni un script.
-2. **Los agentes nunca aprueban, cancelan ni borran.** Solo solicitan; decide el humano.
-3. **Historial inmutable.** `events` es solo-anexar: nunca UPDATE ni DELETE sobre él.
-4. **Contratos.** Los modelos Pydantic son la fuente; los tipos TypeScript se generan desde OpenAPI y no se editan a mano.
-5. **Sin API de Anthropic.** El usuario usa cuota de Claude Pro: Kairos nunca llama a Claude. Son las sesiones de Claude Code las que se conectan a Kairos por MCP.
-6. **Seguridad.** El puerto solo escucha en `127.0.0.1`; contraseñas y tokens solo como hash; ningún secreto en el repo (`.env` fuera, `.env.example` dentro).
-7. **Datos.** SQLite en volumen Docker **nombrado**, no en bind mount (WAL no es fiable en bind mounts de Windows).
-8. **Un PR = un propósito.** Cambios pequeños y enfocados.
+1. **Single door.** The UI, MCP and automations call the same use cases with an `Actor` (human, agent or orchestrator). Gates and permissions live in `domain/`; no entry point can skip them, not even a script.
+2. **Agents never approve, cancel or delete.** They can only request; the human decides.
+3. **Immutable history.** `events` is append-only: never `UPDATE` or `DELETE` on it.
+4. **Contracts.** Pydantic models are the source of truth; TypeScript types are generated from OpenAPI and never edited by hand.
+5. **No Anthropic API.** The owner uses a Claude Pro quota: Kairos never calls Claude. Claude Code sessions connect to Kairos over MCP.
+6. **Security.** The port listens only on `127.0.0.1`; passwords and tokens are stored only as hashes; no secrets in the repo (`.env` stays out, `.env.example` goes in).
+7. **Data.** SQLite lives in a **named** Docker volume, not a bind mount (WAL is not reliable on Windows bind mounts).
+8. **One PR, one purpose.** Small, focused changes.
 
-## Idioma
+## Language
 
-- UI: español.
-- Código, identificadores, commits, PR, ADR y README: **inglés**.
-- Este archivo y los docs de trabajo (`STATUS`, `ROADMAP`, `FEATURES`, `GLOSSARY`, specs y planes): español.
+- **Chat with the owner: Spanish.** Only there.
+- **Everything else: English**: code, identifiers, UI strings, docs (including this file, `STATUS`, `ROADMAP`, specs and plans), ADRs, agent/skill/rule definitions, prompts sent to subagents, commit messages, PRs and the README.
+- UI strings live in a message catalog (no hardcoded text in components) so another language can be added later.
+- `docs/GLOSSARY.md` has a Spanish column only to map the owner's chat vocabulary to the English terms.
 
-## Flujo git (sobrescribe la skill `git-commit-push`; ver ADR-0004)
+## Git flow (overrides the `git-commit-push` skill; see ADR-0004)
 
-La skill asume una persona y una rama `dev` de larga vida. Aquí trabajan varios agentes en paralelo, así que:
+The skill assumes one person and a long-lived `dev` branch. Several agents work in parallel here, so:
 
-- **Trunk-based.** `main` siempre estable. Nunca commit ni push directo a `main`. **No existe `dev`.**
-- **Una rama corta por tarea**, creada desde `origin/main`: `<tipo>/<ID>-<slug>`. Ejemplo: `feat/KAI-12-approval-queue`. Antes de que Kairos exista, el ID es `BOOT-<n>` (ver `docs/bootstrap-tasks.md`). Tipos: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`.
-- **Un worktree por agente**, nunca una carpeta compartida: `git worktree add ../Kairos-wt/<ID> -b <rama> origin/main`. La carpeta `Kairos-wt/` es hermana del repo, fuera de él.
-- **Commits:** Conventional Commits en inglés, imperativo, ≤72 caracteres, atómicos. `git add <archivo>` por nombre, nunca `git add .`. Nunca `--no-verify`.
-- **Rama al día:** `git merge origin/main`; no hacer rebase de una rama ya publicada.
-- **PR a `main`:** título convencional con ID (`feat(tasks): add approval queue (KAI-12)`), cuerpo en inglés con *What changed / Why / How it was tested* y enlace a la tarea. Antes de abrirlo, `check` en verde sobre el estado final.
-- **Merge: solo el usuario**, por **squash**, y se borra la rama. Ningún agente hace merge (misma regla que con las tareas).
-- **Ruleset de `main`** (lo importa el usuario en la web): PR obligatorio, check `check` obligatorio y rama al día, **historial lineal**, sin force-push ni borrado, 0 aprobaciones, sin bypass. Dependabot apunta a `main`.
-- **Sigue vigente el resto de la skill:** revisión previa del repo, avisar antes de añadir CI o bots, no hacer force-push, no reescribir historia publicada, no subir secretos, no mezclar propósitos en un PR.
+- **Trunk-based.** `main` is always stable. Never commit or push directly to `main`. **There is no `dev`.**
+- **One short-lived branch per task**, created from `origin/main`: `<type>/<ID>-<slug>`. Example: `feat/KAI-12-approval-queue`. Before Kairos exists the ID is `BOOT-<n>` (see `docs/bootstrap-tasks.md`). Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`.
+- **One worktree per agent**, never a shared folder: `git worktree add ../Kairos-wt/<ID> -b <branch> origin/main`. The `Kairos-wt/` folder is a sibling of the repo, outside it.
+- **Commits:** Conventional Commits in English, imperative, ≤72 characters, atomic. `git add <file>` by name, never `git add .`. Never `--no-verify`.
+- **Keep the branch current** with `git merge origin/main`; do not rebase a published branch.
+- **PR to `main`:** conventional title with the ID (`feat(tasks): add approval queue (KAI-12)`), English body with *What changed / Why / How it was tested* and a link to the task. Before opening it, `check` must pass on the final state.
+- **Merge: the owner only**, by **squash**, and the branch is deleted. No agent merges (same rule as with tasks).
+- **`main` ruleset** (the owner imports it on the web): PR required, `check` status required and branch up to date, **linear history**, no force-push or deletion, 0 approvals, no bypass. Dependabot targets `main`.
+- **The rest of the skill still applies:** pre-flight repo review, warn before adding CI or bots, no force-push, no rewriting published history, no secrets, no mixing purposes in a PR.
 
-## Mantener la documentación
+## Keeping the docs alive
 
-- `docs/STATUS.md`: se reescribe al cerrar cada bloque (hecho, siguiente, bloqueos).
-- `docs/ROADMAP.md`: se actualiza al completar o mover etapas.
-- `docs/adr/`: una decisión nueva es un ADR nuevo. Los aceptados no se editan: los reemplaza otro que los *supersede*.
-- `docs/FEATURES.md`: las ideas nuevas se anotan ahí; no se implementan sin aprobación.
-- Si el código cambia algo que un doc describe, el doc cambia en el mismo PR.
+- `docs/STATUS.md`: rewritten when closing each block (done, next, blockers).
+- `docs/ROADMAP.md`: updated when stages are completed or moved.
+- `docs/adr/`: a new decision is a new ADR. Accepted ADRs are not edited: a later one *supersedes* them.
+- `docs/FEATURES.md`: new ideas are written there; they are not built without approval.
+- If the code changes something a doc describes, the doc changes in the same PR.

@@ -1,20 +1,20 @@
-# Documentación de Kairos
+# Kairos documentation
 
-Esta carpeta es la **memoria del proyecto**: lo que hay que leer para retomar el trabajo sin depender del historial de una conversación.
+This folder is the **project's memory**: what to read to resume work without relying on a chat history.
 
-| Archivo | Para qué sirve | Cómo se mantiene |
+| File | Purpose | How it is maintained |
 |---|---|---|
-| [`STATUS.md`](STATUS.md) | Dónde estamos, qué sigue, qué bloquea. **Se lee primero.** | Se **reescribe** al cerrar cada bloque de trabajo. |
-| [`ROADMAP.md`](ROADMAP.md) | Etapas del proyecto y su estado. | Se actualiza al completar o mover etapas. |
-| [`FEATURES.md`](FEATURES.md) | Ideas de mejora y registro de «pasadas». | Solo se **añade**; las ideas cambian de estado, no se borran. |
-| [`GLOSSARY.md`](GLOSSARY.md) | Vocabulario del dominio (ES/EN). | Se amplía cuando aparece un término nuevo. |
-| [`bootstrap-tasks.md`](bootstrap-tasks.md) | Tareas del proyecto hasta que Kairos pueda llevarlas él mismo. | Se migra a Kairos en la etapa 1 y queda como archivo histórico. |
-| [`adr/`](adr/) | Decisiones de arquitectura y su porqué (en inglés). | Un ADR por decisión. Los aceptados no se editan; se reemplazan. |
-| [`superpowers/specs/`](superpowers/specs/) | Diseños aprobados (salida del brainstorming). | Uno por funcionalidad grande. |
-| [`superpowers/plans/`](superpowers/plans/) | Planes de implementación (salida de writing-plans). | Uno por spec. |
+| [`STATUS.md`](STATUS.md) | Where we are, what comes next, what blocks. **Read first.** | **Rewritten** when closing each block of work. |
+| [`ROADMAP.md`](ROADMAP.md) | Project stages and their status. | Updated when stages are completed or moved. |
+| [`FEATURES.md`](FEATURES.md) | Improvement ideas and the log of review passes. | **Append-only**; ideas change status, they are never deleted. |
+| [`GLOSSARY.md`](GLOSSARY.md) | Domain vocabulary (with a Spanish column for the owner's chat). | Extended when a new term appears. |
+| [`bootstrap-tasks.md`](bootstrap-tasks.md) | Tasks until Kairos can track them itself. | Migrated into Kairos in stage 1, then kept as history. |
+| [`adr/`](adr/) | Architecture decisions and their reasons. | One ADR per decision. Accepted ones are not edited; they are superseded. |
+| [`superpowers/specs/`](superpowers/specs/) | Approved designs (output of brainstorming). | One per large feature. |
+| [`superpowers/plans/`](superpowers/plans/) | Implementation plans (output of writing-plans). | One per spec. |
 
-## Reglas
+## Rules
 
-- Un dato vive en **un solo sitio**; el resto lo enlaza.
-- Si el código cambia algo que un doc describe, el doc se actualiza **en el mismo PR**.
-- Los docs de trabajo van en español; los ADR y el README raíz, en inglés.
+- A fact lives in **one place**; everything else links to it.
+- If the code changes something a doc describes, the doc is updated **in the same PR**.
+- Everything in the repo is written in English. Spanish is only for chatting with the owner.
