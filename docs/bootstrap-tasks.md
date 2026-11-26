@@ -5,30 +5,31 @@ Kairos does not exist yet, so its first tasks live here. They use the same forma
 Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
 
 ## BOOT-001 — Project context in the repo
-- **Type:** docs · **Status:** `in_review` · **Branch:** `docs/BOOT-001-project-context`
+- **Type:** docs · **Status:** `done` · **Branch:** `docs/BOOT-001-project-context` (merged in PR #1)
 - **Criteria:**
   - [x] `CLAUDE.md` with map, golden rules and git flow.
   - [x] `docs/` with status, roadmap, ideas, glossary and ADRs.
   - [x] Design spec reviewed by a subagent.
-  - [ ] The owner merges the PR.
+  - [x] The owner merges the PR.
 
 ## BOOT-002 — Stage 0 plan
-- **Type:** plan · **Status:** `in_review` · **Branch:** `docs/BOOT-002-stage0-plan` · **Depends on:** BOOT-001
+- **Type:** plan · **Status:** `done` · **Branch:** `docs/BOOT-002-stage0-plan` (merged in PR #3) · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] Plan in `docs/superpowers/plans/` with small, verifiable tasks (`writing-plans` skill).
-  - [ ] The owner reviews the plan and chooses the execution method.
+  - [x] The owner reviews the plan and chooses the execution method (subagent-driven for the first day, native by default afterwards).
 
 ## BOOT-003 — MCP spike: per-agent token
-- **Type:** spike · **Status:** `ready` · **Plan:** Task 1 · **Depends on:** BOOT-001
+- **Type:** spike · **Status:** `done` · **Branch:** `docs/BOOT-003-mcp-spike-result` (merged in PR #4) · **Plan:** Task 1 · **Depends on:** BOOT-001
 - **Criteria:**
-  - [ ] A minimal MCP server over HTTP requires `Authorization: Bearer` and Claude Code connects from `.mcp.json` on Windows.
-  - [ ] It is checked whether a subagent can carry its own token or inherits the session's.
-  - [ ] Result recorded in ADR-0005 (accepted or superseded). The spike code is discarded.
+  - [x] A minimal MCP server over HTTP requires `Authorization: Bearer` and Claude Code connects from `.mcp.json` on Windows.
+  - [x] It is checked whether a subagent can carry its own token or inherits the session's.
+  - [x] Result recorded in ADR-0005 (accepted or superseded). The spike code is discarded.
+  - [x] The owner merges PR #4.
 
 ## BOOT-004 — Tooling and `check`
-- **Type:** chore · **Status:** `ready` · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
+- **Type:** chore · **Status:** `in_progress` · **Branch:** `chore/BOOT-004-foundations` (pushed, no PR yet; Task 2 done) · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
 - **Criteria:**
-  - [ ] `uv` installed (with the owner's consent) and `backend/` with a tested health endpoint, Ruff, pyright and pytest.
+  - [x] `uv` installed (with the owner's consent) and `backend/` with a tested health endpoint, Ruff, pyright and pytest.
   - [ ] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
   - [ ] TypeScript API types generated from OpenAPI, with a drift check that survives Windows line endings.
   - [ ] A single `check` command that runs everything and fails if anything fails.
