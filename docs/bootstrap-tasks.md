@@ -80,5 +80,5 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
 - **Type:** feat · **Status:** `in_progress` · **Plan:** Tasks 1–9 of the slice 1 plan · **Depends on:** BOOT-010
 - **Criteria:**
   - [x] PR A (in review): vocabulary, dependency graph, progress, gates (BOOT-011).
-  - [ ] PR B: transition policy and assignment (BOOT-012).
+  - [x] PR B (in review): transition policy and assignment (BOOT-012).
   - [ ] PR C: task changes, approval requests, visibility and property-based invariants (BOOT-013).

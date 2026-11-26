@@ -134,3 +134,9 @@ def test_all_failures_are_reported_together():
 def test_ungated_targets_return_nothing(target: Status):
     bad = _task(criteria=(), delivery_summary="", assignee=None)
     assert check_gates(bad, target, AGENT, _ctx(open_blockers=frozenset({"x"}))) == ()
+
+
+def test_owner_starting_a_task_of_a_busy_agent_is_busy():
+    # The invariant "one in progress per agent" binds whoever moves the task, the owner included.
+    ctx = _ctx(other_in_progress=frozenset({"t2"}))
+    assert _codes(_task(assignee="a1"), Status.IN_PROGRESS, OWNER, ctx) == {GateCode.AGENT_BUSY}
