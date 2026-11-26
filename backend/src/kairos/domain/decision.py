@@ -26,6 +26,7 @@ class RejectionCode(StrEnum):
     DUPLICATE_REQUEST = "duplicate_request"
     UNKNOWN_SUBTASK = "unknown_subtask"
     DUPLICATE_SUBTASK = "duplicate_subtask"
+    NOT_FOUND = "not_found"
 
 
 class GateCode(StrEnum):

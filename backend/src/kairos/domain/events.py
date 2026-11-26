@@ -22,6 +22,7 @@ class EventType(StrEnum):
     DEPENDENCY_REMOVED = "dependency_removed"
     SUBTASK_ADDED = "subtask_added"
     SUBTASK_STATUS_CHANGED = "subtask_status_changed"
+    AGENT_REGISTERED = "agent_registered"
 
 
 @dataclass(frozen=True)
