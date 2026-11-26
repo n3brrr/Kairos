@@ -2,7 +2,7 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 · **Phase:** stage 1, slice 2 (persistence and history) in execution: PR A (domain additions) is in review.
+**Last updated:** 2026-11-26 · **Phase:** stage 1, slice 2 (persistence and history) is built; PR C (use cases) is in review.
 
 ## Where we are
 
@@ -13,8 +13,11 @@
 - **How strong the tests are:** the policy test walks every (status, status, actor kind) triple against a hand-written copy of design §6.3. A stateful Hypothesis model plays the use cases and checks the invariants after every step. I mutation-checked them: nine deliberate rule breaks (an agent approving, the busy-agent rule overridable, backward moves keeping the assignment, the review gate ignoring evidence, evidence smuggled through the criteria field, retyping an assigned task, submitting another agent's task, and others) each fail the suite. The first version of the model never reached `IN_PROGRESS`; that was found and fixed.
 - **Independent review of the whole slice** found 1 Critical and 6 Important issues, all fixed test-first except one that needs the owner (see below). The Critical one: evidence could be written through the `criteria` field, bypassing the evidence gate.
 - **Decisions beyond the plan** (ledger R1 to R13; the ones that change the spec are now written in §6.4 and §6.5): the one-in-progress rule per agent is an invariant nobody can override, the owner included; the queue limit is checked at assignment only; evidence only enters through `decide_attach_evidence`; a task's type cannot change while it is assigned; `created_by` grants visibility only while a task is unassigned.
-- **Slice 2 (persistence and history) is planned and started** ([`superpowers/plans/2026-11-26-stage-1-slice-2-persistence.md`](superpowers/plans/2026-11-26-stage-1-slice-2-persistence.md)): three PRs from `main`, not stacked. **PR A** (branch `feat/BOOT-015-domain-registry`, worktree `Kairos-wt/BOOT-015`) is built: subtasks with identity and a kanban status (`todo`, `in_progress`, `in_review` = pending approval, `done`, `cancelled`; the owner, the orchestrator and the carrying agent move them among the first three, only the owner approves, cancels or reopens; approving a delivery approves the subtasks still in review; design §6.1 amended) and owner-only registry decisions for projects, epics and agent profiles. PR B (SQLite, Alembic, schema with defense-in-depth indexes and triggers, the hash-chained event log and `verify`) and PR C (repositories, `TaskService`, queries, app wiring) follow.
-- Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it can be removed with `docker volume rm boot-006_kairos-data`.
+- **Slice 2 (persistence and history) is in `main` except its last PR** ([plan](superpowers/plans/2026-11-26-stage-1-slice-2-persistence.md)). Merged: PR A (#19: subtasks with a kanban status, owner-only registry decisions) and PR B (#20: SQLite in WAL, Alembic baseline, partial unique indexes and triggers, the hash-chained event log, `python -m kairos.features.history` to verify it). **PR C** (branch `feat/BOOT-017-use-cases`, worktree `Kairos-wt/BOOT-017`): repositories, `TaskService` (13 use cases, each one transaction that writes the task, its request and its events together, or nothing), `RegistryService`, visibility-filtered `TaskQueries`, and the app migrating its database on startup.
+- **How strong the slice 2 tests are:** the database is exercised through the use cases, not only the repositories: a full lifecycle checked event by event; an exhaustive test that no agent, subagent or orchestrator reaches `done` or `cancelled` through any move; a rolled-back decision leaves every table untouched; a stateful Hypothesis model plays the services at random (30 steps by 25 examples, with a guided walk so it reaches `done` in every example) and checks after each step: the hash chain verifies, one `in_progress` per agent, one pending request per task, a pending delivery request exists exactly while the task is in review, and every task row equals the replay of its events. Mutation checks: letting the orchestrator approve, and not writing events, are both caught.
+- **Independent review of the whole slice** (opus; a first attempt on fable stopped on a usage-credits limit) found 0 Critical and 4 Important issues, all fixed test-first: a plain move out of review left the delivery request pending (now `decide_move_task` in the domain closes it and approves the subtasks in review); subtasks could change while the owner reviewed, and approval ignored open subtasks; duplicate criterion ids crashed in the database instead of being rejected; the orchestrator could delete an agent's evidence by dropping its criterion. Nine minors are deferred (ledger, listed under Open risks).
+- **Measured in Docker:** the image boots, migrates to revision `0001`, seeds the five task types and `verify` answers `OK`. Cost of the database stack: 80 MiB idle RAM (was 45) and a 249 MB image (was 224).
+- Nothing is running. Leftover empty dev volumes on the owner's Docker: `boot-006_kairos-data`, `boot-009_kairos-data` and `boot-017_kairos-data`; remove them with `docker volume rm <name>` when convenient (never `docker compose down -v` on the real one).
 
 ## What the spike decided (ADR-0005)
 
@@ -24,13 +27,14 @@
 
 ## Next (in order)
 
-1. The owner merges PR A of slice 2 (**Squash and merge**). Then PR B and PR C, each from a fresh `origin/main`.
-2. Execute the rest of the slice 2 plan natively (`executing-plans`); one independent review of the whole slice before PR C is merged.
-3. Slices 3 to 6, one plan each, in order.
+1. The owner merges PR C of slice 2 (**Squash and merge**). It is the last PR of the slice.
+2. Slice 3 (REST and owner login): brainstorm what is open (CSRF and attempt-limiting details, the one-time local command that creates the owner), write its plan, then execute it natively.
+3. Slices 4 to 6, one plan each, in order.
 
 ## Waiting on the owner
 
-- Merge PR A of slice 2 (**Squash and merge**) when it is open. Its "My calls" are in the plan: SQLAlchemy Core without ORM, seeded task types, the hash format.
+- Merge PR C of slice 2 (**Squash and merge**).
+- Read the "My calls" of the slice 2 plan if you have not: SQLAlchemy Core without an ORM, the five seeded task types (`bug` needs a description, `feature` a description and a priority), the hash format, and the cascade (approving a delivery approves the subtasks still in review).
 
 ## How to resume ("continúa por donde lo dejaste")
 
@@ -47,5 +51,6 @@ Default execution mode is **native**: Claude does the tasks itself with `superpo
 - **Agent-file subagent token** (see above): unverified. Until verified, subagents are the same agent with `via` attribution.
 - **Two languages:** the backend/frontend contract depends on generating types from OpenAPI (ADR-0001); drift is checked in `check` and CI.
 - **Claude Pro quota:** subagent-driven runs and the spike spend it; native is the default for that reason.
-- **Slice 2 must remember these domain findings** (also in the ledger): (1) `decide_transition` from `IN_REVIEW` to `DONE`/`READY` does not touch the pending delivery request: approving or returning a delivery must go through `decide_resolve_request`, or the request stays pending; (2) the use case computes `GateContext`, `queue_load` and the dependency map, so those queries must match the domain's definitions; (3) an orchestrator profile can be assigned a task that the orchestrator can never start; (4) field values are not validated by the domain (priority, labels, dates): Pydantic does that at the edges; (5) `Task.project_id` cannot change.
+- **Deferred minor findings from slice 2** (ledger): the engine URL breaks on a `%` in the data folder name; subtask row ids `<task>:<subtask>` can collide when ids contain `:`; blank task and subtask ids are accepted; "insertion order" relies on `rowid`; `UnitOfWork` leaks a connection if `BEGIN IMMEDIATE` times out and the lifespan does not dispose the engine if the migration fails; `verify` prints a traceback when `kairos.db` has no `events` table; a lone surrogate in a comment raises instead of being rejected (the Pydantic edges should refuse it); an agent can probe ids through `ALREADY_EXISTS` (server-generated ids fix it); every transaction, reads included, takes the write lock; agent profiles may use the ids `owner` or `system`.
+- **Slice 3 and 4 must remember** (domain findings, also in the ledger): an orchestrator profile can be assigned a task it can never start; `Actor.kind` is not cross-checked with the stored profile kind (slice 4 builds actors from tokens, so it must); field values are not validated by the domain (priority, labels, dates): Pydantic does that at the edges; `Task.project_id` cannot change; `fields_updated` records field names, not values.
 - **Deferred minor findings from stage 0** (ledger): `check.py` crashes with a traceback if `uv` or `pnpm` is missing; the SPA catch-all is GET-only; `/docs`, `/redoc` and `/openapi.json` are public until auth lands (slice 3); pyright does not cover `tools/`.

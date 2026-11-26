@@ -20,7 +20,7 @@ Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/
 
 ## Stage 1: "Dogfood-ready" core — 🟦
 
-Cut into six slices, each with its own plan: pure domain → persistence and history → REST and owner login → MCP, agents and tokens → minimal UI → dogfood. See [`superpowers/specs/2026-11-26-stage-1-decomposition-design.md`](superpowers/specs/2026-11-26-stage-1-decomposition-design.md). **Slice 1 (pure domain): built, in review** (three stacked PRs).
+Cut into six slices, each with its own plan: pure domain → persistence and history → REST and owner login → MCP, agents and tokens → minimal UI → dogfood. See [`superpowers/specs/2026-11-26-stage-1-decomposition-design.md`](superpowers/specs/2026-11-26-stage-1-decomposition-design.md). **Slice 1 (pure domain): done. Slice 2 (persistence and history): built, last PR in review.**
 
 - Pure domain: statuses, gates, permissions, invariants (with property-based tests).
 - SQLite persistence + hash-chained immutable history.

@@ -1,5 +1,7 @@
 """Application factory. Run with `uvicorn kairos.main:create_app --factory`."""
 
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -8,8 +10,14 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from kairos import __version__
+from kairos.adapters.db.engine import make_engine
+from kairos.adapters.db.migrate import upgrade
+from kairos.adapters.runtime import system_clock, uuid_ids
 from kairos.config import Settings
 from kairos.features.health.api import router as health_router
+from kairos.features.registry.service import RegistryService
+from kairos.features.tasks.queries import TaskQueries
+from kairos.features.tasks.service import TaskService
 
 # First path segments the SPA fallback must never answer for: the backend's own routes, and
 # the build assets (a missing hashed asset must be a 404, never the index page).
@@ -18,7 +26,23 @@ _RESERVED_SEGMENTS = frozenset({"api", "mcp", "assets"})
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
-    app = FastAPI(title="Kairos", version=__version__)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+        """Open the database, bring it to the latest schema and build the use cases."""
+        settings.data_dir.mkdir(parents=True, exist_ok=True)
+        engine = make_engine(settings.database_path)
+        upgrade(engine)
+        app.state.engine = engine
+        app.state.tasks = TaskService(engine, system_clock, uuid_ids)
+        app.state.registry = RegistryService(engine, system_clock, uuid_ids)
+        app.state.queries = TaskQueries(engine)
+        try:
+            yield
+        finally:
+            engine.dispose()
+
+    app = FastAPI(title="Kairos", version=__version__, lifespan=lifespan)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
     app.include_router(health_router)
     # The SPA catch-all matches every GET, so it must be registered after every other route.
