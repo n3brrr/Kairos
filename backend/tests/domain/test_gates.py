@@ -5,7 +5,7 @@ import pytest
 from kairos.domain.actor import Actor, ActorKind
 from kairos.domain.decision import GateCode
 from kairos.domain.gates import GateContext, check_gates
-from kairos.domain.model import Criterion, Evidence, EvidenceKind, Task, TaskType
+from kairos.domain.model import Criterion, Evidence, EvidenceKind, Subtask, Task, TaskType
 from kairos.domain.status import Status, SubtaskStatus
 
 AGENT = Actor(ActorKind.AGENT, "a1")
@@ -104,7 +104,7 @@ def test_review_needs_evidence_on_every_criterion():
 
 
 def test_review_rejects_pending_subtasks():
-    task = _task(subtasks=(SubtaskStatus.DONE, SubtaskStatus.PENDING))
+    task = _task(subtasks=(Subtask("s1", "A", SubtaskStatus.DONE), Subtask("s2", "B")))
     assert _codes(task, Status.IN_REVIEW, AGENT, _ctx()) == {GateCode.PENDING_SUBTASKS}
 
 
@@ -120,7 +120,7 @@ def test_blank_delivery_summary_fails(summary: str):
 
 
 def test_all_failures_are_reported_together():
-    task = _task(criteria=(), delivery_summary="", subtasks=(SubtaskStatus.PENDING,))
+    task = _task(criteria=(), delivery_summary="", subtasks=(Subtask("s1", "A"),))
     ctx = _ctx(open_blockers=frozenset({"x"}))
     assert _codes(task, Status.IN_REVIEW, AGENT, ctx) == {
         GateCode.CRITERIA_WITHOUT_EVIDENCE,

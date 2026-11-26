@@ -27,8 +27,17 @@ CLOSED: frozenset[Status] = frozenset({Status.DONE, Status.CANCELLED})
 
 
 class SubtaskStatus(StrEnum):
-    PENDING = "pending"
+    """A subtask's kanban status. `IN_REVIEW` is "pending approval"; only the owner closes one."""
+
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    IN_REVIEW = "in_review"
     DONE = "done"
+    CANCELLED = "cancelled"
+
+
+# Subtasks that still block a task from going to review.
+SUBTASK_OPEN: frozenset[SubtaskStatus] = frozenset({SubtaskStatus.TODO, SubtaskStatus.IN_PROGRESS})
 
 
 class EpicStatus(StrEnum):

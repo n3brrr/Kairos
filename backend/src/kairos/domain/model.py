@@ -53,6 +53,15 @@ class Evidence:
 
 
 @dataclass(frozen=True)
+class Subtask:
+    """A step of a task. It has no assignee: whoever carries the task carries it."""
+
+    id: str
+    title: str
+    status: SubtaskStatus = SubtaskStatus.TODO
+
+
+@dataclass(frozen=True)
 class Criterion:
     id: str
     text: str
@@ -90,7 +99,7 @@ class Task:
     due_date: date | None = None
     recurrence: str | None = None
     criteria: tuple[Criterion, ...] = ()
-    subtasks: tuple[SubtaskStatus, ...] = ()
+    subtasks: tuple[Subtask, ...] = ()
     blocked_by: frozenset[str] = frozenset()
     assignee: str | None = None
     delivery_summary: str = ""

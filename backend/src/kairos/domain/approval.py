@@ -14,6 +14,7 @@ from kairos.domain.gates import GateContext
 from kairos.domain.model import ApprovalRequest, RequestKind, RequestState, Task, is_blank
 from kairos.domain.policy import decide_transition
 from kairos.domain.status import CLOSED, Status
+from kairos.domain.subtasks import approve_pending_subtasks
 
 
 def decide_request_cancellation(
@@ -77,6 +78,9 @@ def decide_resolve_request(
         if isinstance(moved, Rejected):
             return moved
         new_task, events, warnings = moved.task, list(moved.events), moved.warnings
+        if request.kind is RequestKind.DELIVERY and approve:
+            new_task, approved = approve_pending_subtasks(new_task, actor)
+            events.extend(approved)
     state = RequestState.APPROVED if approve else RequestState.REJECTED
     events.append(
         Event(
