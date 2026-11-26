@@ -77,8 +77,21 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] The owner reviews the plan and merges the PR.
 
 ## BOOT-011 to BOOT-013 — Slice 1: pure domain
-- **Type:** feat · **Status:** `in_progress` · **Plan:** Tasks 1–9 of the slice 1 plan · **Depends on:** BOOT-010
+- **Type:** feat · **Status:** `done` · **Plan:** Tasks 1–9 of the slice 1 plan · **Depends on:** BOOT-010
 - **Criteria:**
-  - [x] PR A (in review): vocabulary, dependency graph, progress, gates (BOOT-011).
-  - [x] PR B (in review): transition policy and assignment (BOOT-012).
-  - [x] PR C (in review): task changes, approval requests, visibility and property-based invariants (BOOT-013).
+  - [x] PR A (#14): vocabulary, dependency graph, progress, gates (BOOT-011).
+  - [x] PR B (#15): transition policy and assignment (BOOT-012).
+  - [x] PR C (#16, brought into `main` by #17): task changes, approval requests, visibility and property-based invariants (BOOT-013).
+
+## BOOT-014 — Stage 1 slice 2 plan (persistence and history)
+- **Type:** plan · **Status:** `done` · **Branch:** `docs/BOOT-014-slice-2-plan` (PR #18) · **Depends on:** BOOT-011 to BOOT-013
+- **Criteria:**
+  - [x] Plan in `docs/superpowers/plans/` with exact interfaces, tests and review focus.
+  - [x] The owner reviews the plan and merges the PR.
+
+## BOOT-015 to BOOT-017 — Slice 2: persistence and history
+- **Type:** feat · **Status:** `in_progress` · **Plan:** Tasks 1–9 of the slice 2 plan · **Depends on:** BOOT-014
+- **Criteria:**
+  - [x] PR A (#19, BOOT-015): subtasks with a kanban status and owner-only registry decisions.
+  - [x] PR B (#20, BOOT-016): SQLite schema, migrations, the hash-chained event log and `verify`.
+  - [ ] PR C (BOOT-017, in review): repositories, `TaskService`, `RegistryService`, queries and database startup.

@@ -7,7 +7,7 @@ The UI and the code use the same English term. The Spanish column only maps the 
 | Project (`Project`) | Proyecto | Highest-level container. States: active, queued, paused, archived. Has an **area** (Personal, Development…). |
 | Epic (`Epic`, kind of `Item`) | Épica | Groups tasks of the same goal inside a project. |
 | Task (`Task`, kind of `Item`) | Tarea | Unit of work assignable to a human or an agent. |
-| Subtask (`Subtask`, kind of `Item`) | Subtarea | Step of a task; not assigned separately. |
+| Subtask (`Subtask`, kind of `Item`) | Subtarea | Step of a task; not assigned separately. Statuses: todo, in progress, in review (pending approval), done, cancelled. Whoever carries the task moves it among the first three; only the owner approves, cancels or reopens it. |
 | Task type (`TaskType`) | Tipo de tarea | Defines the required fields and the criteria template (bug, feature, chore…). |
 | Status (`Status`) | Estado | Proposal, Backlog, Ready, In progress, In review, Done, Cancelled. |
 | Blocked (`is_blocked`, derived) | Bloqueada | Has open dependencies. Not a stored status. |
@@ -25,6 +25,7 @@ The UI and the code use the same English term. The Spanish column only maps the 
 | Approval request (`ApprovalRequest`) | Solicitud de aprobación | A PR-like request with description and reason. The human decides it. |
 | Assignment (`Assignment`) | Asignación | Task ↔ agent relation. An agent has one in-progress task. |
 | History (`events` log) | Historial | Immutable, append-only record of every change. |
+| Event chain (`verify`) | Cadena de eventos | Each event stores the hash of the previous one, so an edited or removed event is detectable. `python -m kairos.features.history` recomputes it. |
 | Single door | Puerta única | Every entry point goes through the same use cases with an `Actor`. |
 | Review pass | Pasada | A round of improvement proposals; see `FEATURES.md`. |
 | Dogfooding | Dogfooding | Kairos manages its own development. |
