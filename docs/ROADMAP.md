@@ -2,11 +2,11 @@
 
 Status: ⬜ pending · 🟦 in progress · ✅ done. The detail of each stage lives in its plan (`docs/superpowers/plans/`).
 
-## Stage −1: Design — 🟦
+## Stage −1: Design — ✅
 
 Brainstorming, spec, ADRs, repo context. **Exits when the owner approves the spec.**
 
-## Stage 0: Foundations and spike — ⬜
+## Stage 0: Foundations and spike — 🟦
 
 Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/2026-11-26-stage-0-foundations.md) (nine tasks, five PRs, spike first).
 
@@ -14,7 +14,7 @@ Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/
 - Repo skeleton following the map in `CLAUDE.md`; Docker "hello world" with a named volume and the port on `127.0.0.1`.
 - `.claude/`: base agents, path-scoped rules, hooks (formatting, blocking destructive commands, a reminder to update `STATUS.md`).
 - CI (GitHub Actions) + Dependabot + PR template, in their own PR. The `main` ruleset (imported by the owner).
-- **MCP spike** (throwaway): per-agent token, the `Authorization` header from `.mcp.json` on Windows, per-subagent token?
+- **MCP spike** (throwaway) — ✅ done (PR #4, ADR-0005): per-agent token works on Windows; a per-subagent token is an opt-in verified only through `--agents`.
 
 **Milestone:** `check` is green in CI and the spike answers the two questions in ADR-0005.
 
