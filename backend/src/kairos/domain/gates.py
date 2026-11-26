@@ -12,7 +12,8 @@ from kairos.domain.status import Status, SubtaskStatus
 class GateContext:
     """What the gates need to know about the world, computed by the use case.
 
-    `other_in_progress` holds the ids of the acting agent's *other* `IN_PROGRESS` tasks.
+    `other_in_progress` holds the ids of the *other* `IN_PROGRESS` tasks of the agent who would
+    carry the task: the acting agent, or the task's assignee when someone else moves it.
     `cancelled_blockers` only produces warnings (design §6.7); it is not a gate.
     """
 
@@ -54,11 +55,11 @@ def check_gates(
     if target is Status.IN_PROGRESS:
         if ctx.open_blockers:
             fail(GateCode.OPEN_DEPENDENCIES, _blocked_message(ctx))
-        if actor.kind is ActorKind.AGENT:
-            if task.assignee != actor.id:
-                fail(GateCode.NOT_ASSIGNED_TO_ACTOR, "The task is not assigned to this agent.")
-            if ctx.other_in_progress:
-                fail(GateCode.AGENT_BUSY, "The agent already has a task in progress.")
+        if actor.kind is ActorKind.AGENT and task.assignee != actor.id:
+            fail(GateCode.NOT_ASSIGNED_TO_ACTOR, "The task is not assigned to this agent.")
+        # One `IN_PROGRESS` task per agent binds whoever moves the task, the owner included.
+        if ctx.other_in_progress and (actor.kind is ActorKind.AGENT or task.assignee is not None):
+            fail(GateCode.AGENT_BUSY, "The agent already has a task in progress.")
 
     if target is Status.IN_REVIEW:
         missing = _missing_required_fields(task, ctx.task_type)

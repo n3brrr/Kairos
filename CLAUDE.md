@@ -17,7 +17,7 @@ brainstorming → approved spec → writing-plans → TDD (red/green) → verifi
 
 ## Code status
 
-Foundations only: a health endpoint, a PWA skeleton and the tooling. Decided stack (ADR-0001): Python backend (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), React + Vite + TypeScript frontend, one Docker container. **Do not invent commands that are not listed here.**
+The pure domain (`backend/src/kairos/domain/`: statuses, gates, permission policy, dependencies, assignment, approval requests; tested with table-driven and property-based tests, run by `uv run pytest -q` in `backend/`), a health endpoint, a PWA skeleton and the tooling. No persistence, REST API or MCP endpoint yet. Decided stack (ADR-0001): Python backend (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), React + Vite + TypeScript frontend, one Docker container. **Do not invent commands that are not listed here.**
 
 Commands (Python via `uv`, JavaScript/TypeScript via `pnpm` only):
 
