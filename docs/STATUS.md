@@ -7,8 +7,7 @@
 ## Where we are
 
 - `main` has the project context, the design spec and the ADRs (PR #1, merged by the owner).
-- **PR #3** (`docs/BOOT-002-stage0-plan`): the stage 0 plan plus this status. Open, waiting for the owner.
-- **PR #4** (`docs/BOOT-003-mcp-spike-result`): Task 1, the MCP spike. ADR-0005 is `accepted`. Open, waiting for the owner.
+- PR #3 (the stage 0 plan) and PR #4 (Task 1, the MCP spike; ADR-0005 is `accepted`) are **merged** by the owner, so `main` has them.
 - **Branch `chore/BOOT-004-foundations`** (pushed, **no PR yet**): Task 2 (backend skeleton: FastAPI app factory, `/api/health`, Host validation, SPA fallback; 30 tests, Ruff and pyright strict clean) is done and reviewed. Tasks 3–5 remain; open the PR when Task 5 is done.
 - Tasks 1–2 were run subagent-driven because the owner chose it for that day. **From now on the default is native** (see below).
 - Nothing is running: no servers, no containers. Docker Desktop is currently **not started**; Task 6 needs it.
@@ -27,7 +26,7 @@
 
 ## Waiting on the owner
 
-- Merge PR #3 and PR #4 (they touch different files, any order). Squash is preferred (`CLAUDE.md`); PR #1 was merged with a merge commit, which a `required_linear_history` ruleset would reject.
+- Merge the PR that carries this file. Squash is preferred (`CLAUDE.md`); PRs #1, #3 and #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
 - Start Docker Desktop before Task 6.
 - Once CI exists: import the `main` ruleset (Claude prepares the JSON).
 
@@ -35,7 +34,7 @@
 
 Default execution mode is **native**: Claude does the tasks itself with `superpowers:executing-plans`, then one independent reviewer checks the whole branch. Subagent-driven only if the owner asks again.
 
-1. Read this file, then `CLAUDE.md`, then the plan: `docs/superpowers/plans/2026-11-26-stage-0-foundations.md` (it lives on branch `docs/BOOT-002-stage0-plan`, worktree `D:\FuckEstudios\Idiomas\Kairos-wt\BOOT-002`, until PR #3 is merged).
+1. Read this file, then `CLAUDE.md`, then the plan: `docs/superpowers/plans/2026-11-26-stage-0-foundations.md`.
 2. Run `gh pr list` to see what the owner merged. If `main` moved, merge it into the working branch with `git merge origin/main` (never rebase a published branch).
 3. Work in the execution worktree `D:\FuckEstudios\Idiomas\Kairos-wt\stage0`, branch `chore/BOOT-004-foundations`. Push with `git push -u origin <branch>` only; never a plain `git push`.
 4. The ledger of the subagent-driven part is at `D:\FuckEstudios\Idiomas\Kairos-wt\stage0\.superpowers\sdd\2026-11-26-stage-0-foundations\progress.md` (git-ignored scratch). It holds the pre-flight scan, the rulings and the deferred Minor findings for the final review. If it is lost, rebuild from `git log` and the plan.

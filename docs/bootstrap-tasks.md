@@ -13,18 +13,18 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] The owner merges the PR.
 
 ## BOOT-002 — Stage 0 plan
-- **Type:** plan · **Status:** `in_review` · **Branch:** `docs/BOOT-002-stage0-plan` (PR #3) · **Depends on:** BOOT-001
+- **Type:** plan · **Status:** `done` · **Branch:** `docs/BOOT-002-stage0-plan` (merged in PR #3) · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] Plan in `docs/superpowers/plans/` with small, verifiable tasks (`writing-plans` skill).
-  - [ ] The owner reviews the plan and chooses the execution method.
+  - [x] The owner reviews the plan and chooses the execution method (subagent-driven for the first day, native by default afterwards).
 
 ## BOOT-003 — MCP spike: per-agent token
-- **Type:** spike · **Status:** `in_review` · **Branch:** `docs/BOOT-003-mcp-spike-result` (PR #4) · **Plan:** Task 1 · **Depends on:** BOOT-001
+- **Type:** spike · **Status:** `done` · **Branch:** `docs/BOOT-003-mcp-spike-result` (merged in PR #4) · **Plan:** Task 1 · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] A minimal MCP server over HTTP requires `Authorization: Bearer` and Claude Code connects from `.mcp.json` on Windows.
   - [x] It is checked whether a subagent can carry its own token or inherits the session's.
   - [x] Result recorded in ADR-0005 (accepted or superseded). The spike code is discarded.
-  - [ ] The owner merges PR #4.
+  - [x] The owner merges PR #4.
 
 ## BOOT-004 — Tooling and `check`
 - **Type:** chore · **Status:** `in_progress` · **Branch:** `chore/BOOT-004-foundations` (pushed, no PR yet; Task 2 done) · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
