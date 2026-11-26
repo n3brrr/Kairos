@@ -7,6 +7,7 @@ summary and working notes.
 
 from collections.abc import Mapping
 from dataclasses import replace
+from typing import cast
 
 from kairos.domain.actor import Actor, ActorKind, AgentProfile
 from kairos.domain.decision import Allowed, Decision, Rejected, RejectionCode
@@ -51,6 +52,16 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         return _not_permitted("The system actor cannot create tasks yet.")
     if is_blank(draft.title):
         return Rejected(RejectionCode.EMPTY_TEXT, "A task needs a title.")
+    # Two second doors stay shut: dependencies go through `decide_add_dependency` (cycle and
+    # existence checks) and evidence through `decide_attach_evidence`.
+    if draft.blocked_by:
+        return Rejected(
+            RejectionCode.FIELD_NOT_ALLOWED, "Dependencies are added after the task exists."
+        )
+    if any(criterion.evidence for criterion in draft.criteria):
+        return Rejected(
+            RejectionCode.FIELD_NOT_ALLOWED, "Evidence is attached to a criterion, not drafted."
+        )
     status = Status.BACKLOG
     if actor.kind in _AGENT_KINDS:
         if profile is None:
@@ -60,10 +71,6 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         ):
             return Rejected(
                 RejectionCode.OUT_OF_SCOPE, "The proposal is outside the agent's scope."
-            )
-        if draft.blocked_by:
-            return Rejected(
-                RejectionCode.FIELD_NOT_ALLOWED, "An agent cannot set dependencies on a proposal."
             )
         status = Status.PROPOSED
     task = replace(draft, status=status, created_by=actor.id, assignee=None)
@@ -87,20 +94,66 @@ def _agent_may_edit(task: Task, actor: Actor, fields: frozenset[str]) -> Rejecte
     return _not_permitted("An agent can only edit its own proposal or the task it is working on.")
 
 
-def decide_update_fields(task: Task, actor: Actor, changes: Mapping[str, object]) -> Decision:
-    """Change editable fields of `task`."""
+def _criteria_problem(task: Task, value: object) -> str | None:
+    """Why `value` cannot replace the criteria of `task`, or None.
+
+    Evidence is never written through this field: every criterion must carry exactly the
+    evidence it already has (a new criterion carries none), so evidence keeps its author
+    and its `EVIDENCE_ATTACHED` event.
+    """
+    if not isinstance(value, tuple):
+        return "Criteria must be a tuple of Criterion."
+    items = cast(tuple[object, ...], value)
+    if not all(isinstance(item, Criterion) for item in items):
+        return "Criteria must be a tuple of Criterion."
+    existing = {criterion.id: criterion.evidence for criterion in task.criteria}
+    for criterion in cast(tuple[Criterion, ...], items):
+        if criterion.evidence != existing.get(criterion.id, ()):
+            return "Evidence is attached to a criterion, never written through the criteria field."
+    return None
+
+
+def decide_update_fields(
+    task: Task,
+    actor: Actor,
+    changes: Mapping[str, object],
+    profile: AgentProfile | None = None,
+) -> Decision:
+    """Change editable fields of `task`. `profile` is the acting agent's, to check its scope."""
     fields = frozenset(changes)
     if not fields or not fields <= EDITABLE_FIELDS:
         return Rejected(RejectionCode.FIELD_NOT_ALLOWED, "No fields, or fields that cannot be set.")
     if actor.kind is ActorKind.ORCHESTRATOR:
         if task.status in CLOSED:
             return Rejected(RejectionCode.WRONG_STATUS, "A closed task cannot be edited.")
+        if "criteria" in fields and task.status is Status.IN_REVIEW:
+            return Rejected(
+                RejectionCode.WRONG_STATUS,
+                "The owner is reviewing this task: its criteria are fixed.",
+            )
     elif actor.kind is ActorKind.AGENT:
         refusal = _agent_may_edit(task, actor, fields)
         if refusal is not None:
             return refusal
     elif actor.kind is not ActorKind.OWNER:
         return _not_permitted("The system actor cannot edit tasks yet.")
+    if "type" in fields:
+        # An assignee was chosen for this type: changing it would put the task out of scope.
+        if task.assignee is not None:
+            return Rejected(
+                RejectionCode.FIELD_NOT_ALLOWED, "Unassign the task before changing its type."
+            )
+        if actor.kind is ActorKind.AGENT:
+            if profile is None:
+                return _not_permitted("An agent needs a profile to change a type.")
+            if changes["type"] not in profile.allowed_task_types:
+                return Rejected(
+                    RejectionCode.OUT_OF_SCOPE, "That type is outside the agent's scope."
+                )
+    if "criteria" in fields:
+        problem = _criteria_problem(task, changes["criteria"])
+        if problem is not None:
+            return Rejected(RejectionCode.FIELD_NOT_ALLOWED, problem)
     # Validate values only after the actor is known to be allowed to change these fields.
     title = changes.get("title")
     if "title" in changes and (not isinstance(title, str) or is_blank(title)):

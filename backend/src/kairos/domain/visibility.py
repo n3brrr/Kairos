@@ -6,9 +6,12 @@ from kairos.domain.model import Task
 
 
 def can_view_task(actor: Actor, task: Task) -> bool:
-    """The owner and the orchestrator see every task; an agent sees what it carries or proposed."""
+    """The owner and the orchestrator see every task; an agent sees what it carries, and what it
+    proposed for as long as nobody else carries it."""
     if actor.kind in (ActorKind.OWNER, ActorKind.ORCHESTRATOR):
         return True
     if actor.kind is ActorKind.AGENT:
-        return task.assignee == actor.id or task.created_by == actor.id
+        if task.assignee is not None:
+            return task.assignee == actor.id
+        return task.created_by == actor.id
     return False

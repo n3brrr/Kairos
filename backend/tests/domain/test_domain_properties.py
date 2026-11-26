@@ -60,6 +60,7 @@ PROFILES = {
 }
 TASK_TYPE = TaskType("bug", frozenset())
 PROOF = Evidence(EvidenceKind.TEXT, "ran it", "x")
+FORGED = Evidence(EvidenceKind.TEXT, "   ", "forged")
 IDS = tuple(f"t{n}" for n in range(6))
 AGENT_IDS = ("a1", "a2")
 
@@ -81,6 +82,8 @@ UPDATES: tuple[dict[str, Any], ...] = (
     {"working_notes": "notes"},
     {"title": "Renamed"},
     {"priority": Priority.P0},
+    {"criteria": (Criterion("c1", "works", (FORGED,)),)},  # evidence smuggled in as a field
+    {"type": "feature"},  # may take an assigned task out of its assignee's scope
 )
 
 
@@ -151,6 +154,8 @@ class KairosWorld(RuleBasedStateMachine):
         )
         if not isinstance(decision, Allowed):
             return False
+        if actor.kind is ActorKind.AGENT:
+            assert task.assignee == actor.id, "an agent moved a task it does not carry"
         if actor.kind is not ActorKind.OWNER:
             # Review Focus 1: only these moves are open to anybody but the owner.
             assert (task.status, to_status) in NON_OWNER_MOVES
@@ -190,7 +195,7 @@ class KairosWorld(RuleBasedStateMachine):
         task = self.tasks.get(tid)
         if task is None:
             return False
-        decision = decide_update_fields(task, actor, change)
+        decision = decide_update_fields(task, actor, change, PROFILES.get(actor.id))
         if not isinstance(decision, Allowed):
             return False
         if actor.kind is ActorKind.AGENT and task.status is not Status.PROPOSED:
@@ -369,6 +374,28 @@ class KairosWorld(RuleBasedStateMachine):
             self._update(tid, actor, UPDATES[1])  # a summary, but no evidence
             self._move(tid, Status.IN_REVIEW, actor, None, "please")
 
+    @rule(
+        tid=st.sampled_from(IDS),
+        agent=st.sampled_from(list(PROFILES)),
+        actor=st.sampled_from([OWNER, ORCH]),
+    )
+    def owner_or_orchestrator_retypes_an_assigned_task(
+        self, tid: str, agent: str, actor: Actor
+    ) -> None:
+        self._ready_and_assign(tid, agent)
+        self._update(tid, actor, {"type": "feature"})
+
+    @rule(tid=st.sampled_from(IDS), agent=st.sampled_from(list(PROFILES)))
+    def another_agent_acts_on_a_task_it_does_not_carry(self, tid: str, agent: str) -> None:
+        self._ready_and_assign(tid, agent)
+        self._start(tid)
+        task = self.tasks.get(tid)
+        if task is not None and task.assignee in AGENT_IDS:
+            other = A2 if task.assignee == A1.id else A1
+            self._update(tid, other, UPDATES[1])
+            self._move(tid, Status.IN_REVIEW, other, None, None)
+            self._move(tid, Status.READY, other, "mine now", None)
+
     # -- invariants, checked after every step -----------------------------------------------
 
     @invariant()
@@ -386,6 +413,26 @@ class KairosWorld(RuleBasedStateMachine):
         edges = {tid: task.blocked_by for tid, task in self.tasks.items()}
         for tid in edges:
             assert not _reachable_from_itself(edges, tid), f"{tid} blocks itself"
+
+    @invariant()
+    def evidence_always_comes_from_an_actor(self) -> None:
+        authors = {actor.id for actor in ACTORS}
+        for task in self.tasks.values():
+            for criterion in task.criteria:
+                for evidence in criterion.evidence:
+                    assert evidence.added_by in authors, f"forged evidence on {task.id}"
+
+    @invariant()
+    def a_carried_task_is_inside_its_assignees_scope(self) -> None:
+        for task in self.tasks.values():
+            if task.assignee in PROFILES and task.status in (
+                Status.READY,
+                Status.IN_PROGRESS,
+                Status.IN_REVIEW,
+            ):
+                profile = PROFILES[task.assignee]
+                assert task.type in profile.allowed_task_types, (task.id, task.type)
+                assert task.project_id in profile.allowed_project_ids, (task.id, task.project_id)
 
     @invariant()
     def only_working_statuses_hold_an_assignment(self) -> None:

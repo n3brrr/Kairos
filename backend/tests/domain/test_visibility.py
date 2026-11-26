@@ -37,5 +37,15 @@ def test_an_agent_does_not_see_other_agents_tasks():
     assert not can_view_task(other, _task(assignee=None))
 
 
+def test_the_creator_loses_sight_of_a_task_another_agent_now_carries():
+    # Design §6.9: an agent does not see the content of other agents' tasks.
+    creator = Actor(ActorKind.AGENT, "a1")
+    handed_over = _task(assignee="a2", created_by="a1", status=Status.IN_PROGRESS)
+    assert not can_view_task(creator, handed_over)
+    assert can_view_task(Actor(ActorKind.AGENT, "a2"), handed_over)
+    # Still its own while it is only a proposal or nobody carries it.
+    assert can_view_task(creator, _task(assignee=None, created_by="a1", status=Status.BACKLOG))
+
+
 def test_the_system_actor_sees_nothing_yet():
     assert not can_view_task(Actor(ActorKind.SYSTEM, "sys"), _task())
