@@ -35,11 +35,11 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] A single `check` command that runs everything and fails if anything fails.
 
 ## BOOT-005 — CI, Dependabot and PR template
-- **Type:** ci · **Status:** `ready` · **Plan:** Task 9 · **Depends on:** BOOT-004, BOOT-006
+- **Type:** ci · **Status:** `in_review` · **Branch:** `ci/BOOT-005-ci` (PR #9) · **Plan:** Task 9 · **Depends on:** BOOT-004, BOOT-006
 - **Criteria:**
-  - [ ] GitHub Actions workflow with a job named `check` and a Docker smoke job.
-  - [ ] `dependabot.yml` for `uv`, `npm`, `docker` and `github-actions`, targeting `main`.
-  - [ ] PR template in English.
+  - [x] GitHub Actions workflow with a job named `check` and a Docker smoke job.
+  - [x] `dependabot.yml` for `uv`, `npm`, `docker` and `github-actions`, targeting `main`.
+  - [x] PR template in English.
   - [ ] The owner imports the `main` ruleset on GitHub (Claude prepares the JSON).
 
 ## BOOT-006 — Docker image and compose
