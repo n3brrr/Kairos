@@ -24,6 +24,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Node major versions are bumped by hand, to an LTS only. Node 25 (not an LTS) dropped
+      # `corepack`, which the Dockerfile uses, and broke the image build (Dependabot PR #10).
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Stage 1: build the frontend. Only this stage contains Node.
-FROM node:25-slim AS frontend
+FROM node:24-slim AS frontend
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 WORKDIR /build/frontend
 RUN corepack enable
