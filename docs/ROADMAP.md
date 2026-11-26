@@ -8,6 +8,8 @@ Brainstorming, spec, ADRs, repo context. **Exits when the owner approves the spe
 
 ## Stage 0: Foundations and spike — ⬜
 
+Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/2026-11-26-stage-0-foundations.md) (nine tasks, five PRs, spike first).
+
 - Tooling: `uv` + `pyproject`, `pnpm` + Vite, a single `check` command (lint, types, tests on both sides).
 - Repo skeleton following the map in `CLAUDE.md`; Docker "hello world" with a named volume and the port on `127.0.0.1`.
 - `.claude/`: base agents, path-scoped rules, hooks (formatting, blocking destructive commands, a reminder to update `STATUS.md`).
