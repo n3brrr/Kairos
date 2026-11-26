@@ -31,6 +31,8 @@ Commands (Python via `uv`, JavaScript/TypeScript via `pnpm` only):
 | `uv run --project backend python tools/gen_api_types.py [--check]` | repo root | Regenerate (or verify) `frontend/src/api/schema.d.ts` from OpenAPI. Never edit that file by hand. |
 | `pnpm test` / `lint` / `typecheck` / `build` / `dev` | `frontend/` | Vitest, Biome, `tsc`, production build, dev server (proxies `/api` to `127.0.0.1:8000`). |
 | `uv run uvicorn kairos.main:create_app --factory` | `backend/` | Start the backend. |
+| `docker compose up -d --wait` | repo root | Build and start the single container (`kairos:dev`) on `127.0.0.1:8000`; waits until it is healthy. Data lives in the named volume `kairos-data`. |
+| `docker compose down` | repo root | Stop it. **Never add `-v`**: that deletes the data volume. |
 
 ## Planned repo map (what already exists is marked)
 
@@ -42,7 +44,7 @@ docs/                    ✓  context, status, roadmap, ADRs, specs, plans
 backend/                 ✓  Python: domain/ (pure) · features/ · adapters/
 frontend/                ✓  React: features/ (dashboard, board, task, agents)
 tools/                   ✓  repo tooling: check, type generation, hooks   (stage 0)
-Dockerfile · compose.yaml   a single container
+Dockerfile · compose.yaml ✓  a single container
 .github/                    CI, Dependabot, PR template                   (stage 0)
 ```
 

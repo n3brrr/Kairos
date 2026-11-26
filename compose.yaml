@@ -1,0 +1,21 @@
+services:
+  kairos:
+    image: kairos:dev
+    build: .
+    ports:
+      # Loopback only: the board is never reachable from the network.
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # A NAMED volume, never a bind mount: SQLite WAL is not reliable on Windows bind mounts.
+      - kairos-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  kairos-data:
