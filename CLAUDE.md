@@ -31,6 +31,7 @@ Commands (Python via `uv`, JavaScript/TypeScript via `pnpm` only):
 | `uv run --project backend python tools/gen_api_types.py [--check]` | repo root | Regenerate (or verify) `frontend/src/api/schema.d.ts` from OpenAPI. Never edit that file by hand. |
 | `pnpm test` / `lint` / `typecheck` / `build` / `dev` | `frontend/` | Vitest, Biome, `tsc`, production build, dev server (proxies `/api` to `127.0.0.1:8000`). |
 | `uv run uvicorn kairos.main:create_app --factory` | `backend/` | Start the backend. |
+| `uv run python -m kairos.features.history [--data-dir PATH]` | `backend/` | Verify the event hash chain of `<data-dir>/kairos.db` (default: `KAIROS_DATA_DIR`, `/data`). Exit `0` good, `1` broken (prints the first broken `seq`), `2` no database. |
 | `docker compose up -d --wait` | repo root | Build and start the single container (`kairos:dev`) on `127.0.0.1:8000`; waits until it is healthy. Data lives in the named volume `kairos-data`. |
 | `docker compose down` | repo root | Stop it. **Never add `-v`**: that deletes the data volume. |
 
