@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The job name `check` is what the `main` ruleset requires. Do not rename it.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Fail instead of silently re-locking when uv.lock is stale.
+      UV_LOCKED: "1"
+    steps:
+      - uses: actions/checkout@v7
+
+      # setup-uv publishes exact tags only (no floating major); Dependabot keeps it current.
+      - uses: astral-sh/setup-uv@v10.4.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      # The pnpm version comes from `packageManager` in frontend/package.json
+      # (there is no root package.json).
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+
+      # Node is also needed by the pyright wrapper, which downloads the real pyright.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Run check
+        run: python3 tools/check.py
+
+  # Smoke test: the image builds, starts, becomes healthy and answers.
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build and start
+        run: docker compose up -d --wait
+
+      - name: Health check
+        run: curl --fail --silent --show-error http://127.0.0.1:8000/api/health
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      # Never `-v`: that would delete the data volume.
+      - name: Stop
+        if: always()
+        run: docker compose down
