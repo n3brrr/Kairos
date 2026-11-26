@@ -24,6 +24,8 @@ class RejectionCode(StrEnum):
     EMPTY_TEXT = "empty_text"
     REQUEST_NOT_PENDING = "request_not_pending"
     DUPLICATE_REQUEST = "duplicate_request"
+    UNKNOWN_SUBTASK = "unknown_subtask"
+    DUPLICATE_SUBTASK = "duplicate_subtask"
 
 
 class GateCode(StrEnum):

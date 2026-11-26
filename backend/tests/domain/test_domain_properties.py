@@ -35,12 +35,13 @@ from kairos.domain.model import (
     Priority,
     RequestKind,
     RequestState,
+    Subtask,
     Task,
     TaskType,
     is_blank,
 )
 from kairos.domain.policy import decide_transition
-from kairos.domain.status import CLOSED, Status, SubtaskStatus
+from kairos.domain.status import CLOSED, SUBTASK_OPEN, Status, SubtaskStatus
 
 OWNER = Actor(ActorKind.OWNER, "owner")
 ORCH = Actor(ActorKind.ORCHESTRATOR, "o1")
@@ -168,7 +169,7 @@ class KairosWorld(RuleBasedStateMachine):
             assert task.criteria and all(c.evidence for c in task.criteria)
             assert not is_blank(task.delivery_summary)
             assert not ctx.open_blockers
-            assert SubtaskStatus.PENDING not in task.subtasks
+            assert not any(s.status in SUBTASK_OPEN for s in task.subtasks)
         self.tasks[tid] = decision.task
         if decision.request is not None:
             self.requests[(tid, decision.request.kind)] = decision.request
@@ -453,6 +454,12 @@ _criterion = st.builds(
     text=st.just("x"),
     evidence=st.lists(st.just(PROOF), max_size=1).map(tuple),
 )
+_subtask = st.builds(
+    Subtask,
+    id=st.sampled_from(["s1", "s2"]),
+    title=st.just("step"),
+    status=st.sampled_from(list(SubtaskStatus)),
+)
 _task = st.builds(
     Task,
     id=st.just("t1"),
@@ -463,7 +470,7 @@ _task = st.builds(
     status=st.sampled_from(list(Status)),
     assignee=st.sampled_from([None, "a1", "a2"]),
     criteria=st.lists(_criterion, max_size=2).map(tuple),
-    subtasks=st.lists(st.sampled_from(list(SubtaskStatus)), max_size=2).map(tuple),
+    subtasks=st.lists(_subtask, max_size=2, unique_by=lambda s: s.id).map(tuple),
     delivery_summary=st.sampled_from(["", "   ", "ok"]),
 )
 _ctx = st.builds(

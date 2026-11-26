@@ -14,7 +14,7 @@ from kairos.domain.decision import Allowed, Decision, Rejected, RejectionCode
 from kairos.domain.events import Event, EventType
 from kairos.domain.graph import would_create_cycle
 from kairos.domain.model import Criterion, Evidence, Task, is_blank
-from kairos.domain.status import CLOSED, Status
+from kairos.domain.status import CLOSED, Status, SubtaskStatus
 
 # Fields that `decide_update_fields` may change. `status`, `assignee` and `blocked_by` have their
 # own decisions; `id`, `created_by` and `project_id` never change.
@@ -30,7 +30,6 @@ EDITABLE_FIELDS: frozenset[str] = frozenset(
         "due_date",
         "recurrence",
         "criteria",
-        "subtasks",
         "delivery_summary",
         "working_notes",
     }
@@ -62,6 +61,9 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         return Rejected(
             RejectionCode.FIELD_NOT_ALLOWED, "Evidence is attached to a criterion, not drafted."
         )
+    problem = _draft_subtasks_problem(draft)
+    if problem is not None:
+        return Rejected(RejectionCode.FIELD_NOT_ALLOWED, problem)
     status = Status.BACKLOG
     if actor.kind in _AGENT_KINDS:
         if profile is None:
@@ -78,6 +80,17 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         EventType.ITEM_CREATED, task.id, actor, {"status": status.value, "type": task.type}
     )
     return Allowed(task, (event,))
+
+
+def _draft_subtasks_problem(draft: Task) -> str | None:
+    """Why the subtasks of a draft are not acceptable (they start as `TODO`), or None."""
+    ids = [subtask.id for subtask in draft.subtasks]
+    if len(set(ids)) != len(ids):
+        return "Subtask ids must be unique."
+    for subtask in draft.subtasks:
+        if subtask.status is not SubtaskStatus.TODO or is_blank(subtask.title):
+            return "Drafted subtasks need a title and start as todo."
+    return None
 
 
 def _agent_may_edit(task: Task, actor: Actor, fields: frozenset[str]) -> Rejected | None:

@@ -20,6 +20,8 @@ class EventType(StrEnum):
     APPROVAL_RESOLVED = "approval_resolved"
     DEPENDENCY_ADDED = "dependency_added"
     DEPENDENCY_REMOVED = "dependency_removed"
+    SUBTASK_ADDED = "subtask_added"
+    SUBTASK_STATUS_CHANGED = "subtask_status_changed"
 
 
 @dataclass(frozen=True)
