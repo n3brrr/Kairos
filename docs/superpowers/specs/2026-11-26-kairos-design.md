@@ -110,12 +110,12 @@ To move to `in_review`: required fields of the type complete, **every criterion 
 To move to `in_progress`: the task is assigned to the actor, has no open dependencies and the agent has no other task in progress.
 To move to `ready`: at least **one acceptance criterion**, so "every criterion has evidence" is never vacuous **(my call)**.
 
-**Gates always bind agents and the orchestrator.** The owner can **override** them by giving a reason, which is recorded in the history as `gate_overridden` **(my call)**.
+**Gates always bind agents and the orchestrator.** The owner can **override** them by giving a reason, which is recorded in the history as `gate_overridden` **(my call)**. The one exception is "one `in_progress` task per agent": it is an invariant (§6.8, also a database constraint, ADR-0002), so nobody can override it, the owner included **(my call, decided while building slice 1)**.
 
 ### 6.5 Criteria, evidence and progress
 Every task has acceptance criteria; each criterion is met by attaching **evidence** (text, link or command output). **Progress** of a leaf = criteria met / total (100% if done). Containers average their children (exact formula left to the plan).
 
-**Who writes the criteria (my call).** The owner or the orchestrator define them, or they come from the type's template. An agent may *draft them inside a proposal*; once promoted, it **cannot add, edit or delete criteria: it can only attach evidence**. On its own task, an agent may change only comments, evidence, delivery summary and working notes; not title, type, priority, dates, parent or dependencies.
+**Who writes the criteria (my call).** The owner or the orchestrator define them, or they come from the type's template. An agent may *draft them inside a proposal*; once promoted, it **cannot add, edit or delete criteria: it can only attach evidence**. On its own task, an agent may change only comments, evidence, delivery summary and working notes; not title, type, priority, dates, parent or dependencies. Evidence enters only by attaching it to a criterion, never through the criteria field, so it keeps its author and its history event. A task's type cannot change while it is assigned, because its assignee was chosen for that type **(my call, decided while building slice 1)**.
 
 ### 6.6 Approval requests
 Like a PR: an agent that wants to cancel or close a task creates a **request** with a description and a reason; it stays pending until the owner approves or rejects it (with a note). Moving to `in_review` implicitly creates the approval request for the delivery.
