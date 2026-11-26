@@ -2,14 +2,15 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 · **Phase:** stage 1 in progress: the slice 1 (pure domain) plan is in review.
+**Last updated:** 2026-11-26 · **Phase:** stage 1, slice 1 (pure domain) in execution: PR A is in review.
 
 ## Where we are
 
 - **Stage 0 is done in `main`:** backend and frontend skeletons, contract pipeline (OpenAPI → TypeScript, drift-checked), the single `check` command, Docker image and compose (224 MB, 45 MiB idle RAM), Claude Code project config (hooks, five agents, three path-scoped rules, two skills), and CI (`check` and `docker` jobs, Dependabot, PR template). PRs #1 to #9 are merged. The owner confirmed the project hooks load (`/hooks`). The `/agents` wizard no longer exists in Claude Code 2.1.332: agents are just the files in `.claude/agents/`.
 - **Stage 1 is cut into six slices** (design: [`superpowers/specs/2026-11-26-stage-1-decomposition-design.md`](superpowers/specs/2026-11-26-stage-1-decomposition-design.md)). The owner chose "by layers": 1 pure domain, 2 persistence and history, 3 REST and owner login, 4 MCP, agents and tokens, 5 minimal UI, 6 dogfood. Each slice gets its own plan and PRs.
-- The stage 1 design (BOOT-008, PR #11) is merged. **Branch `docs/BOOT-010-slice-1-plan`** (worktree `Kairos-wt/BOOT-010`) carries the slice 1 plan: [`superpowers/plans/2026-11-26-stage-1-slice-1-domain.md`](superpowers/plans/2026-11-26-stage-1-slice-1-domain.md). Nine tasks in three stacked PRs: A (BOOT-011: vocabulary, dependency graph, gates), B (BOOT-012: transition policy, assignment), C (BOOT-013: task changes, approval requests, visibility, property-based invariants). No domain code exists yet.
-- **`main` is red** since the Dependabot PR #10 (Node 25) was merged: Node 25 has no `corepack`, so the image build fails. **PR #12** returns the Dockerfile to `node:24-slim` and makes Dependabot ignore Node major bumps; its CI is green. Merge it first.
+- The stage 1 design (PR #11) and the slice 1 plan (PR #13) are merged, and so is the Node 24 fix (PR #12): `main` is green and the `main` ruleset is imported (squash only, `check` required).
+- **Slice 1 runs in the worktree `Kairos-wt/BOOT-011`** as three stacked PRs (plan: [`superpowers/plans/2026-11-26-stage-1-slice-1-domain.md`](superpowers/plans/2026-11-26-stage-1-slice-1-domain.md)). **PR A** (branch `feat/BOOT-011-domain-model`, Tasks 1 to 4) is done: vocabulary (actor, status, item model, decisions, events), dependency graph and progress, and the gates. `backend/src/kairos/domain/` is pure (a test enforces stdlib-only imports). PR B (policy, assignment) and PR C (task changes, approval requests, visibility, property-based invariants) come next.
+- The execution ledger (git-ignored scratch) is at `Kairos-wt/BOOT-011/.superpowers/sdd/2026-11-26-stage-1-slice-1-domain/progress.md`.
 - Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it can be removed with `docker volume rm boot-006_kairos-data`.
 
 ## What the spike decided (ADR-0005)
@@ -20,15 +21,13 @@
 
 ## Next (in order)
 
-1. The owner merges PR #12 (fixes `main`) and this plan's PR.
-2. Execute the plan natively (`executing-plans`), PR A first, one independent review of the whole slice before the last PR is merged.
+1. The owner merges PR A (Squash and merge).
+2. PR B: transition policy (Task 5) and assignment (Task 6), then PR C: Tasks 7 to 9. One independent review of the whole slice before PR C is merged.
 3. Slices 2 to 6, one plan each, in order.
 
 ## Waiting on the owner
 
-- **Merge PR #12** (Squash and merge): it repairs the red `docker` job on `main`.
-- Merge the BOOT-010 plan PR (Squash and merge). Please read the "My calls" section of the plan: they are proposals (assignment rules, queue counting, who creates what).
-- **Import the `main` ruleset** if not done yet (check with `gh api repos/n3brrr/Kairos/rulesets`; `[]` means not imported): file `D:\FuckEstudios\Idiomas\Kairos-wt\protect-main.ruleset.json` (outside the repo), via GitHub → Settings → Rules → Rulesets → New ruleset → Import a ruleset. It would also have blocked the Node 25 merge, since `check` and `docker` were not both green.
+- Merge PR A (**Squash and merge**). After it, I merge `origin/main` into the next branch and retarget PR B to `main`.
 
 ## How to resume ("continúa por donde lo dejaste")
 

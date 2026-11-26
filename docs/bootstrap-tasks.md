@@ -64,21 +64,21 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] The owner approves the design and merges the PR.
 
 ## BOOT-009 — Back to Node 24 and ignore Node majors
-- **Type:** build · **Status:** `in_review` · **Branch:** `ci/BOOT-009-dependabot-node` (PR #12) · **Depends on:** BOOT-005
+- **Type:** build · **Status:** `done` · **Branch:** `ci/BOOT-009-dependabot-node` (PR #12) · **Depends on:** BOOT-005
 - **Criteria:**
   - [x] Dockerfile back on `node:24-slim`; image builds and answers `/api/health`.
   - [x] Dependabot ignores `node` semver-major updates.
-  - [ ] The owner merges PR #12 (the `docker` job on `main` is red until then).
+  - [x] The owner merges PR #12.
 
 ## BOOT-010 — Stage 1 slice 1 plan (pure domain)
-- **Type:** plan · **Status:** `in_review` · **Branch:** `docs/BOOT-010-slice-1-plan` · **Depends on:** BOOT-008
+- **Type:** plan · **Status:** `done` · **Branch:** `docs/BOOT-010-slice-1-plan` (PR #13) · **Depends on:** BOOT-008
 - **Criteria:**
   - [x] Plan in `docs/superpowers/plans/` with exact interfaces, tests and review focus.
-  - [ ] The owner reviews the plan and merges the PR.
+  - [x] The owner reviews the plan and merges the PR.
 
 ## BOOT-011 to BOOT-013 — Slice 1: pure domain
-- **Type:** feat · **Status:** `ready` · **Plan:** Tasks 1–9 of the slice 1 plan · **Depends on:** BOOT-010
+- **Type:** feat · **Status:** `in_progress` · **Plan:** Tasks 1–9 of the slice 1 plan · **Depends on:** BOOT-010
 - **Criteria:**
-  - [ ] PR A: vocabulary, dependency graph, progress, gates (BOOT-011).
+  - [x] PR A (in review): vocabulary, dependency graph, progress, gates (BOOT-011).
   - [ ] PR B: transition policy and assignment (BOOT-012).
   - [ ] PR C: task changes, approval requests, visibility and property-based invariants (BOOT-013).

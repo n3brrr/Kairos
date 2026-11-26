@@ -29,3 +29,8 @@ The UI and the code use the same English term. The Spanish column only maps the 
 | Review pass | Pasada | A round of improvement proposals; see `FEATURES.md`. |
 | Dogfooding | Dogfooding | Kairos manages its own development. |
 | Runner | Runner | Host process that launches Claude Code agents (stage 4). |
+| Decision (`Decision`: `Allowed` or `Rejected`) | Decisión | What a domain function returns: `Allowed` carries the new state and the events to record; `Rejected` carries a stable code and a message. No exceptions for expected rejections. |
+| Rejection code (`RejectionCode`) | Código de rechazo | Stable reason why an action was refused (not permitted, invalid transition, queue full…). |
+| Gate failure (`GateFailure`) | Fallo de candado | One gate that did not hold, with its `GateCode`. All failures are reported together. |
+| Delivery request / cancellation request (`RequestKind`) | Solicitud de entrega / de cancelación | The two kinds of approval request: moving to `in_review` creates a delivery request; an agent asks to cancel with a cancellation request. |
+| Event type (`EventType`) | Tipo de evento | Kind of fact recorded in the history (status changed, assigned, gate overridden, evidence attached…). |
