@@ -44,6 +44,18 @@ class RegistryRepository:
         ).first()
         return found is not None
 
+    def item_exists(self, item_id: str) -> bool:
+        """Whether any item (project, epic, task or subtask row) has this id."""
+        return (
+            self._conn.execute(select(items.c.id).where(items.c.id == item_id)).first() is not None
+        )
+
+    def epic_project_id(self, epic_id: str) -> str | None:
+        """The project an epic belongs to, or None when `epic_id` is not an epic."""
+        return self._conn.execute(
+            select(items.c.parent_id).where(items.c.id == epic_id, items.c.kind == "epic")
+        ).scalar_one_or_none()
+
     def save_agent(self, profile: AgentProfile) -> None:
         values = {
             "id": profile.id,

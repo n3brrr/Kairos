@@ -295,3 +295,12 @@ def test_saving_an_agent_again_updates_it(repos: Repos):
     registry.save_agent(changed)
     assert registry.get_agent("a1") == changed
     assert [p.id for p in registry.list_agents()] == ["a1", "a2"]
+
+
+def test_registry_knows_which_ids_exist_and_which_project_an_epic_belongs_to(repos: Repos):
+    _, registry = repos
+    assert registry.item_exists("p1") and registry.item_exists("e1") and registry.item_exists("b1")
+    assert not registry.item_exists("ghost")
+    assert registry.epic_project_id("e1") == "p1"
+    assert registry.epic_project_id("p1") is None  # a project is not an epic
+    assert registry.epic_project_id("ghost") is None
