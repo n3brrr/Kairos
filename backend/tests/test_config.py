@@ -28,3 +28,7 @@ def test_settings_are_read_from_kairos_prefixed_env(monkeypatch: pytest.MonkeyPa
     assert settings.data_dir == Path("/srv/kairos")
     assert settings.static_dir == Path("/srv/static")
     assert settings.allowed_hosts == ["localhost", "kairos.test"]
+
+
+def test_database_lives_inside_the_data_directory():
+    assert Settings(data_dir=Path("/data")).database_path == Path("/data/kairos.db")
