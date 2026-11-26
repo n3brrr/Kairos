@@ -51,7 +51,7 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - Measured: image **224 MB**, idle RAM **45 MiB** (both under the 300 MB / 200 MiB flags).
 
 ## BOOT-007 — Claude Code project configuration
-- **Type:** chore · **Status:** `ready` · **Plan:** Tasks 7–8 · **Depends on:** BOOT-004
+- **Type:** chore · **Status:** `in_review` · **Branch:** `chore/BOOT-007-claude-config` · **Plan:** Tasks 7–8 · **Depends on:** BOOT-004
 - **Criteria:**
-  - [ ] Hooks that block destructive commands (including `gh pr merge`), remind about `docs/STATUS.md` and format on edit, all unit-tested.
-  - [ ] Project agents (orchestrator, backend, frontend, bugs, reviewer), path-scoped rules and two skills, with a structural test.
+  - [x] Hooks that block destructive commands (including `gh pr merge`), remind about `docs/STATUS.md` and format on edit, all unit-tested.
+  - [x] Project agents (orchestrator, backend, frontend, bugs, reviewer), path-scoped rules and two skills, with a structural test.

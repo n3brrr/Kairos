@@ -2,14 +2,14 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 · **Phase:** stage 0 in progress; Tasks 1–6 of 9 done, BOOT-006 awaiting its PR.
+**Last updated:** 2026-11-26 · **Phase:** stage 0 in progress; Tasks 1–8 of 9 done, BOOT-007 awaiting its PR.
 
 ## Where we are
 
 - `main` has the project context, the design spec and the ADRs (PR #1, merged by the owner).
-- PRs #1, #3 (plan), #4 (MCP spike, ADR-0005 `accepted`) and #6 (BOOT-004: backend and frontend skeletons, contract pipeline, single `check`) are **merged**; `main` has them.
-- **Branch `build/BOOT-006-docker`** (worktree `Kairos-wt/BOOT-006`): Task 6 done: multi-stage image (224 MB, 45 MiB idle RAM), non-root uid 10001, read-only filesystem, loopback-only port, named volume `kairos-data`. Verified by running it; the compose invariants are unit-tested.
-- Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it is harmless and can be removed with `docker volume rm boot-006_kairos-data`.
+- PRs #1, #3 (plan), #4 (MCP spike, ADR-0005 `accepted`), #6 (BOOT-004: skeletons, contract pipeline, `check`) and #7 (BOOT-006: Docker image and compose) are **merged**; `main` has them.
+- **Branch `chore/BOOT-007-claude-config`** (worktree `Kairos-wt/BOOT-007`): Tasks 7–8 done: three unit-tested hooks (guard, format on edit, STATUS reminder), project permissions, five agents, three path-scoped rules and two skills. Not yet confirmed by loading them in a live Claude Code session: open one in this worktree and run `/hooks` and `/agents` (see Waiting on the owner).
+- Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it can be removed with `docker volume rm boot-006_kairos-data`.
 
 ## What the spike decided (ADR-0005)
 
@@ -19,12 +19,12 @@
 
 ## Next (in order)
 
-1. Push `build/BOOT-006-docker` and open its PR (the owner merges).
-2. BOOT-007 Claude config (Tasks 7–8), then BOOT-005 CI (Task 9; it needs the Docker smoke job and the deferred minors: `--locked`, `--frozen-lockfile`, Dependabot TypeScript ignore).
+1. Push `chore/BOOT-007-claude-config` and open its PR (the owner merges).
+2. BOOT-005 CI (Task 9): the `check` job, a Docker smoke job, Dependabot, PR template, and the deferred minors (`--locked`, `--frozen-lockfile`, Dependabot ignore for TypeScript majors above 5). Then the owner imports the `main` ruleset.
 
 ## Waiting on the owner
 
-- Merge the BOOT-006 PR (squash preferred, `CLAUDE.md`). PRs #1, #3, #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
+- Merge the BOOT-007 PR (squash preferred, `CLAUDE.md`). Then, in a Claude Code session opened in the repo, run `/hooks` and `/agents` once to confirm the project config loads. PRs #1, #3, #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
 - Once CI exists: import the `main` ruleset (Claude prepares the JSON).
 
 ## How to resume ("continúa por donde lo dejaste")

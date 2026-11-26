@@ -34,12 +34,18 @@ Commands (Python via `uv`, JavaScript/TypeScript via `pnpm` only):
 | `docker compose up -d --wait` | repo root | Build and start the single container (`kairos:dev`) on `127.0.0.1:8000`; waits until it is healthy. Data lives in the named volume `kairos-data`. |
 | `docker compose down` | repo root | Stop it. **Never add `-v`**: that deletes the data volume. |
 
+## Claude Code project configuration (`.claude/`)
+
+- **Hooks** (`tools/hooks/`, unit-tested, wired in `.claude/settings.json`): `guard_bash.py` blocks force-push, push to `main`, `git add .`/`-A`, `--no-verify`, `reset --hard`, `gh pr merge`, `npm`/`npx`/`yarn`, and Docker commands that delete volumes; `format_on_edit.py` formats edited files with the same config as `check`; `status_reminder.py` (Stop) reminds you to update `docs/STATUS.md` when code is newer than it.
+- **Agents** (`.claude/agents/`): `orchestrator`, `backend`, `frontend`, `bugs`, `reviewer` (read-only). **Rules** (`.claude/rules/`) are path-scoped to `backend/**`, `frontend/**` and `docs/**`. **Skills:** `update-status`, `new-adr`.
+- A structural test (`tools/tests/test_claude_config.py`) runs inside `check`.
+
 ## Planned repo map (what already exists is marked)
 
 ```
 CLAUDE.md                ✓  this file
 docs/                    ✓  context, status, roadmap, ADRs, specs, plans
-.claude/                    agents/ · skills/ · rules/ · settings.json   (stage 0)
+.claude/                 ✓  agents/ · skills/ · rules/ · settings.json
 .mcp.json                   Kairos connected to itself                    (stage 1)
 backend/                 ✓  Python: domain/ (pure) · features/ · adapters/
 frontend/                ✓  React: features/ (dashboard, board, task, agents)
