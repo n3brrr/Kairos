@@ -17,3 +17,8 @@ class Settings(BaseSettings):
     data_dir: Path = Path("/data")
     static_dir: Path | None = None
     allowed_hosts: list[str] = ["localhost", "127.0.0.1"]
+
+    @property
+    def database_path(self) -> Path:
+        """The SQLite file, inside the data directory (a named volume in Docker)."""
+        return self.data_dir / "kairos.db"
