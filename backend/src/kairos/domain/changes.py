@@ -61,7 +61,7 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         return Rejected(
             RejectionCode.FIELD_NOT_ALLOWED, "Evidence is attached to a criterion, not drafted."
         )
-    problem = _draft_subtasks_problem(draft)
+    problem = _draft_subtasks_problem(draft) or _draft_criteria_problem(draft)
     if problem is not None:
         return Rejected(RejectionCode.FIELD_NOT_ALLOWED, problem)
     status = Status.BACKLOG
@@ -80,6 +80,12 @@ def decide_create(actor: Actor, profile: AgentProfile | None, draft: Task) -> De
         EventType.ITEM_CREATED, task.id, actor, {"status": status.value, "type": task.type}
     )
     return Allowed(task, (event,))
+
+
+def _draft_criteria_problem(draft: Task) -> str | None:
+    """Drafted criteria need unique ids."""
+    ids = [criterion.id for criterion in draft.criteria]
+    return "Criterion ids must be unique." if len(set(ids)) != len(ids) else None
 
 
 def _draft_subtasks_problem(draft: Task) -> str | None:
@@ -107,7 +113,7 @@ def _agent_may_edit(task: Task, actor: Actor, fields: frozenset[str]) -> Rejecte
     return _not_permitted("An agent can only edit its own proposal or the task it is working on.")
 
 
-def _criteria_problem(task: Task, value: object) -> str | None:
+def _criteria_problem(task: Task, actor: Actor, value: object) -> str | None:
     """Why `value` cannot replace the criteria of `task`, or None.
 
     Evidence is never written through this field: every criterion must carry exactly the
@@ -119,8 +125,17 @@ def _criteria_problem(task: Task, value: object) -> str | None:
     items = cast(tuple[object, ...], value)
     if not all(isinstance(item, Criterion) for item in items):
         return "Criteria must be a tuple of Criterion."
+    new_criteria = cast(tuple[Criterion, ...], items)
+    ids = [criterion.id for criterion in new_criteria]
+    if len(set(ids)) != len(ids):
+        return "Criterion ids must be unique."
+    if actor.kind is not ActorKind.OWNER:
+        dropped = {c.id for c in task.criteria if c.evidence} - set(ids)
+        if dropped:
+            names = ", ".join(sorted(dropped))
+            return f"Only the owner may remove a criterion that has evidence: {names}."
     existing = {criterion.id: criterion.evidence for criterion in task.criteria}
-    for criterion in cast(tuple[Criterion, ...], items):
+    for criterion in new_criteria:
         if criterion.evidence != existing.get(criterion.id, ()):
             return "Evidence is attached to a criterion, never written through the criteria field."
     return None
@@ -164,7 +179,7 @@ def decide_update_fields(
                     RejectionCode.OUT_OF_SCOPE, "That type is outside the agent's scope."
                 )
     if "criteria" in fields:
-        problem = _criteria_problem(task, changes["criteria"])
+        problem = _criteria_problem(task, actor, changes["criteria"])
         if problem is not None:
             return Rejected(RejectionCode.FIELD_NOT_ALLOWED, problem)
     # Validate values only after the actor is known to be allowed to change these fields.

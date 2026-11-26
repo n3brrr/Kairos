@@ -51,6 +51,15 @@ def _not_permitted(message: str) -> Rejected:
     return Rejected(RejectionCode.NOT_PERMITTED, message)
 
 
+def _reviewing(task: Task, actor: Actor) -> Rejected | None:
+    """While the owner reviews a delivery, its subtasks are fixed for everybody else."""
+    if task.status is Status.IN_REVIEW and actor.kind is not ActorKind.OWNER:
+        return Rejected(
+            RejectionCode.WRONG_STATUS, "The owner is reviewing this task: its subtasks are fixed."
+        )
+    return None
+
+
 def decide_add_subtask(task: Task, actor: Actor, subtask: Subtask) -> Decision:
     """Add a `TODO` subtask: the owner or orchestrator, or an agent inside its own proposal."""
     drafting = (
@@ -62,6 +71,8 @@ def decide_add_subtask(task: Task, actor: Actor, subtask: Subtask) -> Decision:
         return _not_permitted("This actor cannot add subtasks to this task.")
     if task.status in CLOSED:
         return Rejected(RejectionCode.WRONG_STATUS, "A closed task takes no new subtasks.")
+    if (refusal := _reviewing(task, actor)) is not None:
+        return refusal
     if is_blank(subtask.title):
         return Rejected(RejectionCode.EMPTY_TEXT, "A subtask needs a title.")
     if subtask.status is not SubtaskStatus.TODO:
@@ -97,6 +108,8 @@ def decide_move_subtask(
             )
     if task.status in CLOSED:
         return Rejected(RejectionCode.WRONG_STATUS, "The subtasks of a closed task are fixed.")
+    if (refusal := _reviewing(task, actor)) is not None:
+        return refusal
     current = next((s for s in task.subtasks if s.id == subtask_id), None)
     if current is None:
         return Rejected(RejectionCode.UNKNOWN_SUBTASK, f"No subtask {subtask_id} on this task.")

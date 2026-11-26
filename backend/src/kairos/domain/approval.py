@@ -8,13 +8,81 @@ owner resolves a request.
 from dataclasses import replace
 
 from kairos.domain.actor import Actor, ActorKind
-from kairos.domain.decision import Allowed, Decision, Rejected, RejectionCode
+from kairos.domain.decision import (
+    Allowed,
+    Decision,
+    GateCode,
+    GateFailure,
+    Rejected,
+    RejectionCode,
+)
 from kairos.domain.events import Event, EventType
 from kairos.domain.gates import GateContext
 from kairos.domain.model import ApprovalRequest, RequestKind, RequestState, Task, is_blank
 from kairos.domain.policy import decide_transition
-from kairos.domain.status import CLOSED, Status
+from kairos.domain.status import CLOSED, SUBTASK_OPEN, Status
 from kairos.domain.subtasks import approve_pending_subtasks
+
+
+def _open_subtasks_refusal(task: Task) -> Rejected | None:
+    """A delivery cannot be approved while a subtask is still `TODO` or `IN_PROGRESS`."""
+    if any(subtask.status in SUBTASK_OPEN for subtask in task.subtasks):
+        message = "Every subtask must be in review, done or cancelled."
+        failure = GateFailure(GateCode.PENDING_SUBTASKS, message)
+        return Rejected(RejectionCode.GATE_FAILED, message, (failure,))
+    return None
+
+
+def _closing_event(
+    task: Task, actor: Actor, request: ApprovalRequest, approved: bool, note: str | None
+) -> Event:
+    payload = {"kind": request.kind.value, "approved": approved}
+    return Event(EventType.APPROVAL_RESOLVED, task.id, actor, payload, note)
+
+
+def decide_move_task(
+    task: Task,
+    actor: Actor,
+    target: Status,
+    ctx: GateContext,
+    pending: ApprovalRequest | None,
+    *,
+    reason: str | None = None,
+    override_reason: str | None = None,
+) -> Decision:
+    """`decide_transition`, plus what a move does to the task's pending request and subtasks.
+
+    Leaving review through a plain move (the owner dragging a card, or returning a delivery)
+    must not leave the delivery request pending, and approving through it must approve the
+    subtasks in review, exactly as `decide_resolve_request` does. A cancelled task closes its
+    pending cancellation request. Other moves leave a pending cancellation alone.
+    """
+    decision = decide_transition(
+        task, actor, target, ctx, reason=reason, override_reason=override_reason
+    )
+    if isinstance(decision, Rejected) or decision.request is not None:
+        return decision
+    new_task, events = decision.task, list(decision.events)
+    approving = task.status is Status.IN_REVIEW and target is Status.DONE
+    if approving:
+        refusal = _open_subtasks_refusal(task)
+        if refusal is not None:
+            return refusal
+        new_task, approved_subtasks = approve_pending_subtasks(new_task, actor)
+        events.extend(approved_subtasks)
+    resolved = None
+    if pending is not None and pending.state is RequestState.PENDING:
+        approved: bool | None = None
+        if pending.kind is RequestKind.DELIVERY and target is not Status.IN_REVIEW:
+            approved = target is Status.DONE
+        elif pending.kind is RequestKind.CANCELLATION and target in CLOSED:
+            approved = target is Status.CANCELLED
+        if approved is not None:
+            note = reason or f"The task moved to {target.value}."
+            state = RequestState.APPROVED if approved else RequestState.REJECTED
+            resolved = replace(pending, state=state, note=note)
+            events.append(_closing_event(task, actor, pending, approved, note))
+    return Allowed(new_task, tuple(events), decision.warnings, resolved)
 
 
 def decide_request_cancellation(
@@ -65,6 +133,10 @@ def decide_resolve_request(
         return Rejected(RejectionCode.REQUEST_NOT_PENDING, "The request was already resolved.")
     if not approve and (note is None or is_blank(note)):
         return Rejected(RejectionCode.REASON_REQUIRED, "Rejecting a request needs a note.")
+    if approve and request.kind is RequestKind.DELIVERY:
+        refusal = _open_subtasks_refusal(task)
+        if refusal is not None:
+            return refusal
 
     target: Status | None
     if request.kind is RequestKind.DELIVERY:

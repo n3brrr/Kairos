@@ -14,7 +14,11 @@ from sqlalchemy.exc import IntegrityError
 
 from kairos.adapters.runtime import Clock, NewId
 from kairos.domain.actor import Actor, ActorKind, AgentProfile
-from kairos.domain.approval import decide_request_cancellation, decide_resolve_request
+from kairos.domain.approval import (
+    decide_move_task,
+    decide_request_cancellation,
+    decide_resolve_request,
+)
 from kairos.domain.assignment import decide_assign, decide_unassign
 from kairos.domain.changes import (
     decide_add_dependency,
@@ -35,7 +39,6 @@ from kairos.domain.decision import (
 from kairos.domain.gates import GateContext
 from kairos.domain.graph import cancelled_blockers, open_blockers
 from kairos.domain.model import Evidence, Subtask, Task, TaskType
-from kairos.domain.policy import decide_transition
 from kairos.domain.status import Status, SubtaskStatus
 from kairos.domain.subtasks import decide_add_subtask, decide_move_subtask
 from kairos.domain.visibility import can_view_task
@@ -114,8 +117,9 @@ class TaskService:
             if isinstance(task, Rejected):
                 return self._finish(uow, task)
             ctx = self._gate_context(uow, task, actor)
-            decision = decide_transition(
-                task, actor, target, ctx, reason=reason, override_reason=override_reason
+            pending = uow.tasks.get_pending_request(task_id)
+            decision = decide_move_task(
+                task, actor, target, ctx, pending, reason=reason, override_reason=override_reason
             )
             return self._finish(uow, decision)
 

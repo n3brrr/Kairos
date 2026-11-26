@@ -61,7 +61,7 @@ class Machine(RuleBasedStateMachine):
     def one_task_from_idea_to_done(self) -> None:
         """Every example starts with a finished task, so the walk always has somewhere to go."""
         for _ in range(12):
-            self._advance("t1", approve=True)
+            self._advance("t1", approve=True, via_move=False)
 
     # --- random moves: anyone may try anything ----------------------------------------------
 
@@ -151,20 +151,21 @@ class Machine(RuleBasedStateMachine):
     @rule(
         tid=st.sampled_from(TASK_IDS),
         approve=st.booleans(),
+        via_move=st.booleans(),
         steps=st.integers(min_value=1, max_value=8),
     )
-    def drive(self, tid: str, approve: bool, steps: int) -> None:
+    def drive(self, tid: str, approve: bool, via_move: bool, steps: int) -> None:
         for _ in range(steps):
-            self._advance(tid, approve)
+            self._advance(tid, approve, via_move)
 
-    def _advance(self, tid: str, approve: bool) -> None:
+    def _advance(self, tid: str, approve: bool, via_move: bool) -> None:
         """One plausible next step for the task, then note where it stands."""
-        self._step(tid, approve)
+        self._step(tid, approve, via_move)
         task = self.env.task(tid)
         if task is not None:
             COVERAGE[task.status.value] += 1
 
-    def _step(self, tid: str, approve: bool) -> None:
+    def _step(self, tid: str, approve: bool, via_move: bool) -> None:
         """One plausible next step for the task, whoever would take it."""
         env, service = self.env, self.env.service
         task = env.task(tid)
@@ -198,6 +199,11 @@ class Machine(RuleBasedStateMachine):
                     service.update_fields(carrier, tid, {"delivery_summary": "Done"})
                 else:
                     service.move_task(carrier, tid, Status.IN_REVIEW)
+            case Status.IN_REVIEW if via_move:
+                # The owner drags the card instead of using the approval queue.
+                service.move_task(
+                    OWNER, tid, Status.DONE if approve else Status.READY, reason="Redo"
+                )
             case Status.IN_REVIEW:
                 service.resolve_request(OWNER, tid, approve, "Please redo it")
             case _:
@@ -222,6 +228,19 @@ class Machine(RuleBasedStateMachine):
                 " GROUP BY task_id"
             ).all()
         assert all(count == 1 for _, count in pending), "two pending requests for one task"
+
+        # A delivery request is pending exactly while its task is in review, and a task that is
+        # closed has no cancellation request left waiting.
+        with env.engine.connect() as conn:
+            kinds = conn.exec_driver_sql(
+                "SELECT task_id, kind FROM approval_requests WHERE state = 'pending'"
+            ).all()
+        deliveries = {task_id for task_id, kind in kinds if kind == "delivery"}
+        in_review = {t.id for t in tasks if t.status is Status.IN_REVIEW}
+        assert deliveries == in_review, f"pending deliveries {deliveries} vs in review {in_review}"
+        closed = {t.id for t in tasks if t.status in CLOSED}
+        cancellations = {task_id for task_id, kind in kinds if kind == "cancellation"}
+        assert not cancellations & closed, "a closed task still has a pending cancellation request"
 
         replayed: dict[str, tuple[Status, str | None]] = {}
         for event in env.events():
