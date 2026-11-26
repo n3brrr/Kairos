@@ -42,3 +42,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Superpowers subagent workspace (local scratch)
+.superpowers/

@@ -27,12 +27,12 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] The owner merges PR #4.
 
 ## BOOT-004 — Tooling and `check`
-- **Type:** chore · **Status:** `in_progress` · **Branch:** `chore/BOOT-004-foundations` (pushed, no PR yet; Task 2 done) · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
+- **Type:** chore · **Status:** `in_review` · **Branch:** `chore/BOOT-004-foundations` · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] `uv` installed (with the owner's consent) and `backend/` with a tested health endpoint, Ruff, pyright and pytest.
-  - [ ] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
-  - [ ] TypeScript API types generated from OpenAPI, with a drift check that survives Windows line endings.
-  - [ ] A single `check` command that runs everything and fails if anything fails.
+  - [x] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
+  - [x] TypeScript API types generated from OpenAPI, with a drift check that survives Windows line endings.
+  - [x] A single `check` command that runs everything and fails if anything fails.
 
 ## BOOT-005 — CI, Dependabot and PR template
 - **Type:** ci · **Status:** `ready` · **Plan:** Task 9 · **Depends on:** BOOT-004, BOOT-006
