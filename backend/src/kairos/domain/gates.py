@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from kairos.domain.actor import Actor, ActorKind
 from kairos.domain.decision import GateCode, GateFailure
 from kairos.domain.model import Task, TaskType, is_blank
-from kairos.domain.status import Status, SubtaskStatus
+from kairos.domain.status import SUBTASK_OPEN, Status
 
 
 @dataclass(frozen=True)
@@ -73,8 +73,8 @@ def check_gates(
                 GateCode.CRITERIA_WITHOUT_EVIDENCE,
                 "The task needs at least one criterion, and every criterion needs evidence.",
             )
-        if any(status is SubtaskStatus.PENDING for status in task.subtasks):
-            fail(GateCode.PENDING_SUBTASKS, "Every subtask must be done.")
+        if any(subtask.status in SUBTASK_OPEN for subtask in task.subtasks):
+            fail(GateCode.PENDING_SUBTASKS, "Every subtask must be in review, done or cancelled.")
         if ctx.open_blockers:
             fail(GateCode.OPEN_DEPENDENCIES, _blocked_message(ctx))
         if is_blank(task.delivery_summary):

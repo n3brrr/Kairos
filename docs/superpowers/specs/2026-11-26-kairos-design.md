@@ -72,7 +72,7 @@ Project › Epic › Task › Subtask. A task may hang directly from a project, 
 - **Project:** its own lifecycle (active, queued, paused, archived) and an **area** attribute (editable list, for example Personal, Development). No criteria or review.
 - **Epic:** groups tasks. No assignment, criteria or review. Its status is **derived** from its children: not started, in progress, or complete when all its tasks are done or cancelled.
 - **Task:** the assignable unit. Uses the seven statuses, criteria and review. **It is the only class that counts** toward "one in progress per agent".
-- **Subtask:** a step of a task, with a simple status (pending or done) and no assignment of its own: whoever carries the task carries it. A task cannot move to `in_review` with pending subtasks.
+- **Subtask:** a step of a task with its own kanban status (`todo`, `in_progress`, `in_review` = pending approval, `done`, `cancelled`) and no assignment of its own: whoever carries the task carries it. The owner, the orchestrator and the agent carrying the task (a subagent included, recorded as `via`) move it among `todo`, `in_progress` and `in_review`; only the owner approves (`done`), cancels or reopens it, as with tasks (golden rule 2). A task cannot move to `in_review` while a subtask is `todo` or `in_progress`; approving the delivery approves the subtasks still `in_review` **(decided with the owner after the slice 2 plan)**.
 
 ### 6.2 Fields and types
 **Base fields** of a task: title, description, type, priority (P0–P3), free labels, parent (project or epic), dates (§6.7), dependencies, acceptance criteria, assignee and delivery summary. **Categorizing** a task means combining project (with its area), type, labels and priority **(my call)**.
@@ -248,6 +248,8 @@ Summary; the live status is in [`docs/ROADMAP.md`](../../ROADMAP.md).
 
 1. **Tasks per agent** (§6.8): not just one. A short queue of assigned tasks, a single one in progress, and supporting subagents on large tasks (my reading of the subagent request; see §6.8).
 2. **Custom fields per type** (§6.2): a fixed list in stage 1; custom fields later.
+
+3. **Subtask statuses** (§6.1): a kanban set instead of pending/done, movable by the owner, the orchestrator and the carrying agent; approval, cancelling and reopening stay with the owner.
 
 No spec questions remain open.
 
