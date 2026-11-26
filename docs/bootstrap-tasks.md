@@ -27,7 +27,7 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] The owner merges PR #4.
 
 ## BOOT-004 — Tooling and `check`
-- **Type:** chore · **Status:** `in_review` · **Branch:** `chore/BOOT-004-foundations` · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
+- **Type:** chore · **Status:** `done` · **Branch:** `chore/BOOT-004-foundations` (PR #6) · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] `uv` installed (with the owner's consent) and `backend/` with a tested health endpoint, Ruff, pyright and pytest.
   - [x] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
@@ -35,7 +35,7 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [x] A single `check` command that runs everything and fails if anything fails.
 
 ## BOOT-005 — CI, Dependabot and PR template
-- **Type:** ci · **Status:** `in_review` · **Branch:** `ci/BOOT-005-ci` (PR #9) · **Plan:** Task 9 · **Depends on:** BOOT-004, BOOT-006
+- **Type:** ci · **Status:** `in_progress` · **Branch:** `ci/BOOT-005-ci` (PR #9 merged; only the ruleset import is left) · **Plan:** Task 9 · **Depends on:** BOOT-004, BOOT-006
 - **Criteria:**
   - [x] GitHub Actions workflow with a job named `check` and a Docker smoke job.
   - [x] `dependabot.yml` for `uv`, `npm`, `docker` and `github-actions`, targeting `main`.
@@ -43,7 +43,7 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [ ] The owner imports the `main` ruleset on GitHub (Claude prepares the JSON).
 
 ## BOOT-006 — Docker image and compose
-- **Type:** build · **Status:** `in_review` · **Branch:** `build/BOOT-006-docker` · **Plan:** Task 6 · **Depends on:** BOOT-004
+- **Type:** build · **Status:** `done` · **Branch:** `build/BOOT-006-docker` (PR #7) · **Plan:** Task 6 · **Depends on:** BOOT-004
 - **Criteria:**
   - [x] Multi-stage image, non-root, read-only filesystem, healthcheck.
   - [x] Compose publishes the port only on `127.0.0.1` and keeps data in a named volume, both enforced by tests.
@@ -51,7 +51,14 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - Measured: image **224 MB**, idle RAM **45 MiB** (both under the 300 MB / 200 MiB flags).
 
 ## BOOT-007 — Claude Code project configuration
-- **Type:** chore · **Status:** `in_review` · **Branch:** `chore/BOOT-007-claude-config` · **Plan:** Tasks 7–8 · **Depends on:** BOOT-004
+- **Type:** chore · **Status:** `done` · **Branch:** `chore/BOOT-007-claude-config` (PR #8) · **Plan:** Tasks 7–8 · **Depends on:** BOOT-004
 - **Criteria:**
   - [x] Hooks that block destructive commands (including `gh pr merge`), remind about `docs/STATUS.md` and format on edit, all unit-tested.
   - [x] Project agents (orchestrator, backend, frontend, bugs, reviewer), path-scoped rules and two skills, with a structural test.
+
+## BOOT-008 — Stage 1 decomposition design
+- **Type:** docs · **Status:** `in_review` · **Branch:** `docs/BOOT-008-stage-1-design` · **Depends on:** BOOT-004..007
+- **Criteria:**
+  - [x] Stage 1 cut into slices, with the order chosen by the owner (by layers).
+  - [x] Technical decisions of slice 1 (pure domain) written down as proposals.
+  - [ ] The owner approves the design and merges the PR.

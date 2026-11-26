@@ -6,7 +6,7 @@ Status: ⬜ pending · 🟦 in progress · ✅ done. The detail of each stage li
 
 Brainstorming, spec, ADRs, repo context. **Exits when the owner approves the spec.**
 
-## Stage 0: Foundations and spike — 🟦
+## Stage 0: Foundations and spike — ✅
 
 Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/2026-11-26-stage-0-foundations.md) (nine tasks, five PRs, spike first).
 
@@ -18,7 +18,9 @@ Plan: [`superpowers/plans/2026-11-26-stage-0-foundations.md`](superpowers/plans/
 
 **Milestone:** `check` is green in CI and the spike answers the two questions in ADR-0005.
 
-## Stage 1: "Dogfood-ready" core — ⬜
+## Stage 1: "Dogfood-ready" core — 🟦
+
+Cut into six slices, each with its own plan: pure domain → persistence and history → REST and owner login → MCP, agents and tokens → minimal UI → dogfood. See [`superpowers/specs/2026-11-26-stage-1-decomposition-design.md`](superpowers/specs/2026-11-26-stage-1-decomposition-design.md).
 
 - Pure domain: statuses, gates, permissions, invariants (with property-based tests).
 - SQLite persistence + hash-chained immutable history.
