@@ -15,3 +15,13 @@ export const manifest: Partial<ManifestOptions> = {
     { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
   ],
 };
+
+// Backend URLs the service worker must never answer with the app page when the browser
+// navigates to them (otherwise an installed PWA hides the API's JSON 404 and its docs).
+export const navigateFallbackDenylist: RegExp[] = [
+  /^\/api(\/|$)/,
+  /^\/mcp(\/|$)/,
+  /^\/docs(\/|$)/,
+  /^\/redoc(\/|$)/,
+  /^\/openapi\.json$/,
+];

@@ -39,9 +39,9 @@ CLAUDE.md                ✓  this file
 docs/                    ✓  context, status, roadmap, ADRs, specs, plans
 .claude/                    agents/ · skills/ · rules/ · settings.json   (stage 0)
 .mcp.json                   Kairos connected to itself                    (stage 1)
-backend/                    Python: domain/ (pure) · features/ · adapters/
-frontend/                   React: features/ (dashboard, board, task, agents)
-tools/                      repo tooling: check, type generation, hooks   (stage 0)
+backend/                 ✓  Python: domain/ (pure) · features/ · adapters/
+frontend/                ✓  React: features/ (dashboard, board, task, agents)
+tools/                   ✓  repo tooling: check, type generation, hooks   (stage 0)
 Dockerfile · compose.yaml   a single container
 .github/                    CI, Dependabot, PR template                   (stage 0)
 ```

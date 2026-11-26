@@ -30,7 +30,7 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
 - **Type:** chore · **Status:** `in_review` · **Branch:** `chore/BOOT-004-foundations` · **Plan:** Tasks 2–5 · **Depends on:** BOOT-001
 - **Criteria:**
   - [x] `uv` installed (with the owner's consent) and `backend/` with a tested health endpoint, Ruff, pyright and pytest.
-  - [ ] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
+  - [x] `frontend/` with a PWA skeleton, Biome and Vitest, and UI strings in a message catalog.
   - [x] TypeScript API types generated from OpenAPI, with a drift check that survives Windows line endings.
   - [x] A single `check` command that runs everything and fails if anything fails.
 
