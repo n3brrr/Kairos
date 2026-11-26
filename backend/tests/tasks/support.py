@@ -9,6 +9,8 @@ from sqlalchemy import Engine, inspect, text
 from kairos.domain.model import ApprovalRequest, Task
 from kairos.features.history.log import EventRecord, list_events
 from kairos.features.history.verify import VerifyResult, verify_chain
+from kairos.features.registry.service import RegistryService
+from kairos.features.tasks.queries import TaskQueries
 from kairos.features.tasks.repository import Comment, TaskRepository
 from kairos.features.tasks.service import TaskService
 
@@ -21,6 +23,8 @@ class Env:
 
     engine: Engine
     service: TaskService
+    registry: RegistryService
+    queries: TaskQueries
 
     def put(self, *tasks: Task) -> None:
         """Store tasks directly, skipping the use cases, to set up a state quickly."""

@@ -273,6 +273,24 @@ class TaskRepository:
             row["note"],
         )
 
+    def pending_requests(self) -> list[ApprovalRequest]:
+        rows = self._conn.execute(
+            select(approval_requests)
+            .where(approval_requests.c.state == RequestState.PENDING.value)
+            .order_by(approval_requests.c.id)
+        ).mappings()
+        return [
+            ApprovalRequest(
+                row["task_id"],
+                RequestKind(row["kind"]),
+                row["requested_by"],
+                row["reason"],
+                RequestState.PENDING,
+                row["note"],
+            )
+            for row in rows
+        ]
+
     def save_request(self, request: ApprovalRequest) -> None:
         """Insert a new pending request, or resolve the pending one of the same kind in place."""
         if request.state is not RequestState.PENDING:

@@ -9,6 +9,8 @@ from kairos.domain.actor import ActorKind, AgentProfile
 from kairos.domain.model import Task
 from kairos.domain.registry import Epic, Project
 from kairos.features.registry.repository import RegistryRepository
+from kairos.features.registry.service import RegistryService
+from kairos.features.tasks.queries import TaskQueries
 from kairos.features.tasks.service import TaskService
 
 from .support import AT, Env
@@ -50,5 +52,13 @@ def env(migrated_engine: Engine) -> Iterator[Env]:
         registry.save_epic(Epic("e1", "p1", "Epic one"))
         registry.save_epic(Epic("e2", "p2", "Epic two"))
     ids = count(1)
-    service = TaskService(migrated_engine, lambda: AT, lambda: f"id{next(ids)}")
-    yield Env(migrated_engine, service)
+
+    def new_id() -> str:
+        return f"id{next(ids)}"
+
+    yield Env(
+        migrated_engine,
+        TaskService(migrated_engine, lambda: AT, new_id),
+        RegistryService(migrated_engine, lambda: AT, new_id),
+        TaskQueries(migrated_engine),
+    )
