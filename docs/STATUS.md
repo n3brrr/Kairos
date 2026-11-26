@@ -2,13 +2,14 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 · **Phase:** stage 0 in progress; Tasks 1–8 of 9 done, BOOT-007 awaiting its PR.
+**Last updated:** 2026-11-26 · **Phase:** stage 0 in progress; all 9 tasks done; BOOT-005 (CI) awaiting its merge, then the `main` ruleset.
 
 ## Where we are
 
 - `main` has the project context, the design spec and the ADRs (PR #1, merged by the owner).
-- PRs #1, #3 (plan), #4 (MCP spike, ADR-0005 `accepted`), #6 (BOOT-004: skeletons, contract pipeline, `check`) and #7 (BOOT-006: Docker image and compose) are **merged**; `main` has them.
-- **Branch `chore/BOOT-007-claude-config`** (worktree `Kairos-wt/BOOT-007`): Tasks 7–8 done: three unit-tested hooks (guard, format on edit, STATUS reminder), project permissions, five agents, three path-scoped rules and two skills. Not yet confirmed by loading them in a live Claude Code session: open one in this worktree and run `/hooks` and `/agents` (see Waiting on the owner).
+- PRs #1, #3 (plan), #4 (MCP spike, ADR-0005 `accepted`), #6 (BOOT-004: skeletons, contract pipeline, `check`), #7 (BOOT-006: Docker image and compose) and #8 (BOOT-007: hooks, agents, rules, skills) are **merged**; `main` has them.
+- The owner confirmed the project hooks load (`/hooks` shows the three project hooks). The five agents and two skills appear in the session. The `/agents` wizard no longer exists in Claude Code 2.1.332: agents are just the files in `.claude/agents/`.
+- **Branch `ci/BOOT-005-ci`** (PR #9, worktree `Kairos-wt/BOOT-005`): Task 9 done: workflow with jobs `check` (runs all 10 `check` steps, `UV_LOCKED=1`) and `docker` (compose smoke test), Dependabot (TypeScript majors ignored), PR template. **Its first CI run passed both jobs**, and the log shows all 10 steps `PASS`.
 - Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it can be removed with `docker volume rm boot-006_kairos-data`.
 
 ## What the spike decided (ADR-0005)
@@ -19,13 +20,13 @@
 
 ## Next (in order)
 
-1. Push `chore/BOOT-007-claude-config` and open its PR (the owner merges).
-2. BOOT-005 CI (Task 9): the `check` job, a Docker smoke job, Dependabot, PR template, and the deferred minors (`--locked`, `--frozen-lockfile`, Dependabot ignore for TypeScript majors above 5). Then the owner imports the `main` ruleset.
+1. The owner merges PR #9 (squash), then imports the `main` ruleset.
+2. Stage 0 is then complete. Next is stage 1 (the board core and the MCP endpoint, `docs/ROADMAP.md`): it starts with a brainstorming and spec check, then its own plan. Carry in the stage 1 verification item for the agent-file subagent token (ADR-0005; note its step "run `/agents`" is obsolete: check that the agent is available through the `@agent-` autocomplete instead).
 
 ## Waiting on the owner
 
-- Merge the BOOT-007 PR (squash preferred, `CLAUDE.md`). Then, in a Claude Code session opened in the repo, run `/hooks` and `/agents` once to confirm the project config loads. PRs #1, #3, #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
-- Once CI exists: import the `main` ruleset (Claude prepares the JSON).
+- Merge PR #9 (squash). After that, import the `main` ruleset: file `D:\FuckEstudios\Idiomas\Kairos-wt\protect-main.ruleset.json` (outside the repo) via GitHub → Settings → Rules → Rulesets → New ruleset → Import a ruleset. It requires a PR, the `check` status (branch up to date), linear history, and forbids force-push and deletion; 0 approvals, no bypass. Import it **after** PR #9 is merged so the required `check` is reported on every PR.
+- With `required_linear_history` on, **merge commits are rejected**: from now on always use **Squash and merge** (PRs #1, #3 and #4 used merge commits).
 
 ## How to resume ("continúa por donde lo dejaste")
 
