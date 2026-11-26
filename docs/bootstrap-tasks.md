@@ -43,11 +43,12 @@ Statuses: `ready` · `in_progress` · `in_review` · `done`. IDs: `BOOT-nn`.
   - [ ] The owner imports the `main` ruleset on GitHub (Claude prepares the JSON).
 
 ## BOOT-006 — Docker image and compose
-- **Type:** build · **Status:** `ready` · **Plan:** Task 6 · **Depends on:** BOOT-004
+- **Type:** build · **Status:** `in_review` · **Branch:** `build/BOOT-006-docker` · **Plan:** Task 6 · **Depends on:** BOOT-004
 - **Criteria:**
-  - [ ] Multi-stage image, non-root, read-only filesystem, healthcheck.
-  - [ ] Compose publishes the port only on `127.0.0.1` and keeps data in a named volume, both enforced by tests.
-  - [ ] A fresh volume is writable by the non-root user; image size and idle RAM recorded.
+  - [x] Multi-stage image, non-root, read-only filesystem, healthcheck.
+  - [x] Compose publishes the port only on `127.0.0.1` and keeps data in a named volume, both enforced by tests.
+  - [x] A fresh volume is writable by the non-root user; image size and idle RAM recorded.
+  - Measured: image **224 MB**, idle RAM **45 MiB** (both under the 300 MB / 200 MiB flags).
 
 ## BOOT-007 — Claude Code project configuration
 - **Type:** chore · **Status:** `ready` · **Plan:** Tasks 7–8 · **Depends on:** BOOT-004

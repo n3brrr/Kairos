@@ -2,15 +2,14 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 (end of day) · **Phase:** stage 0 in progress; Tasks 1–5 of 9 done, BOOT-004 awaiting its PR.
+**Last updated:** 2026-11-26 · **Phase:** stage 0 in progress; Tasks 1–6 of 9 done, BOOT-006 awaiting its PR.
 
 ## Where we are
 
 - `main` has the project context, the design spec and the ADRs (PR #1, merged by the owner).
-- PR #3 (the stage 0 plan) and PR #4 (Task 1, the MCP spike; ADR-0005 is `accepted`) are **merged** by the owner, so `main` has them.
-- **Branch `chore/BOOT-004-foundations`** (**no PR yet** until the final review passes): Tasks 2–5 done: backend skeleton, frontend PWA skeleton, OpenAPI → TypeScript contract pipeline with drift check, and the single `check` (`python tools/check.py`, all 10 steps PASS). TypeScript is pinned to 5.9 because `openapi-typescript` 7.13 crashes on TS 7.
-- Tasks 1–2 were run subagent-driven because the owner chose it for that day. **From now on the default is native** (see below).
-- Nothing is running: no servers, no containers. Docker Desktop is currently **not started**; Task 6 needs it.
+- PRs #1, #3 (plan), #4 (MCP spike, ADR-0005 `accepted`) and #6 (BOOT-004: backend and frontend skeletons, contract pipeline, single `check`) are **merged**; `main` has them.
+- **Branch `build/BOOT-006-docker`** (worktree `Kairos-wt/BOOT-006`): Task 6 done: multi-stage image (224 MB, 45 MiB idle RAM), non-root uid 10001, read-only filesystem, loopback-only port, named volume `kairos-data`. Verified by running it; the compose invariants are unit-tested.
+- Nothing is running. A leftover empty dev volume `boot-006_kairos-data` exists on the owner's Docker; it is harmless and can be removed with `docker volume rm boot-006_kairos-data`.
 
 ## What the spike decided (ADR-0005)
 
@@ -20,13 +19,12 @@
 
 ## Next (in order)
 
-1. Whole-branch review of BOOT-004, then push and open its PR with the real `check` output.
-2. Then the stacked branches in the plan: BOOT-006 Docker (Task 6, needs Docker Desktop running), BOOT-007 Claude config (Tasks 7–8), BOOT-005 CI (Task 9).
+1. Push `build/BOOT-006-docker` and open its PR (the owner merges).
+2. BOOT-007 Claude config (Tasks 7–8), then BOOT-005 CI (Task 9; it needs the Docker smoke job and the deferred minors: `--locked`, `--frozen-lockfile`, Dependabot TypeScript ignore).
 
 ## Waiting on the owner
 
-- Merge the PR that carries this file. Squash is preferred (`CLAUDE.md`); PRs #1, #3 and #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
-- Start Docker Desktop before Task 6.
+- Merge the BOOT-006 PR (squash preferred, `CLAUDE.md`). PRs #1, #3, #4 were merged with merge commits, which a `required_linear_history` ruleset would reject, so decide whether to keep that rule.
 - Once CI exists: import the `main` ruleset (Claude prepares the JSON).
 
 ## How to resume ("continúa por donde lo dejaste")
