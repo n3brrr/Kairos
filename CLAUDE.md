@@ -17,7 +17,20 @@ brainstorming → approved spec → writing-plans → TDD (red/green) → verifi
 
 ## Code status
 
-There is no code yet. Decided stack (ADR-0001): Python backend (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), React + Vite + TypeScript frontend, one Docker container. Commands (`check`, tests, startup) will be documented here once they exist: **do not invent commands that are not listed**.
+Foundations only: a health endpoint, a PWA skeleton and the tooling. Decided stack (ADR-0001): Python backend (FastAPI, Pydantic v2, SQLAlchemy 2, Alembic, SQLite), React + Vite + TypeScript frontend, one Docker container. **Do not invent commands that are not listed here.**
+
+Commands (Python via `uv`, JavaScript/TypeScript via `pnpm` only):
+
+| Command | From | What it does |
+|---|---|---|
+| `python tools/check.py` | repo root | **The single `check`**: format, lint, types and tests for backend, tools and frontend, the contract drift check and the frontend build. Runs every step and exits `1` if any fails. |
+| `uv run pytest -q` | `backend/` | Backend tests. |
+| `uv run ruff check --config pyproject.toml . ../tools` | `backend/` | Python lint (also covers `tools/`). Use `ruff format` to format. |
+| `uv run pyright` | `backend/` | Strict type check. |
+| `uv run --project backend pytest tools/tests -q` | repo root | Repo tooling tests. |
+| `uv run --project backend python tools/gen_api_types.py [--check]` | repo root | Regenerate (or verify) `frontend/src/api/schema.d.ts` from OpenAPI. Never edit that file by hand. |
+| `pnpm test` / `lint` / `typecheck` / `build` / `dev` | `frontend/` | Vitest, Biome, `tsc`, production build, dev server (proxies `/api` to `127.0.0.1:8000`). |
+| `uv run uvicorn kairos.main:create_app --factory` | `backend/` | Start the backend. |
 
 ## Planned repo map (what already exists is marked)
 

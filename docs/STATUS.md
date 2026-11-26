@@ -2,13 +2,13 @@
 
 > **Read this first.** If context was lost, this file says where we are. Rewrite it (do not append) when closing each block of work.
 
-**Last updated:** 2026-11-26 (end of day) · **Phase:** stage 0 in progress, stopped at a safe point after Task 2 of 9.
+**Last updated:** 2026-11-26 (end of day) · **Phase:** stage 0 in progress; Tasks 1–5 of 9 done, BOOT-004 awaiting its PR.
 
 ## Where we are
 
 - `main` has the project context, the design spec and the ADRs (PR #1, merged by the owner).
 - PR #3 (the stage 0 plan) and PR #4 (Task 1, the MCP spike; ADR-0005 is `accepted`) are **merged** by the owner, so `main` has them.
-- **Branch `chore/BOOT-004-foundations`** (pushed, **no PR yet**): Task 2 (backend skeleton: FastAPI app factory, `/api/health`, Host validation, SPA fallback; 30 tests, Ruff and pyright strict clean) is done and reviewed. Tasks 3–5 remain; open the PR when Task 5 is done.
+- **Branch `chore/BOOT-004-foundations`** (**no PR yet** until the final review passes): Tasks 2–5 done: backend skeleton, frontend PWA skeleton, OpenAPI → TypeScript contract pipeline with drift check, and the single `check` (`python tools/check.py`, all 10 steps PASS). TypeScript is pinned to 5.9 because `openapi-typescript` 7.13 crashes on TS 7.
 - Tasks 1–2 were run subagent-driven because the owner chose it for that day. **From now on the default is native** (see below).
 - Nothing is running: no servers, no containers. Docker Desktop is currently **not started**; Task 6 needs it.
 
@@ -20,9 +20,8 @@
 
 ## Next (in order)
 
-1. **Task 3**: frontend skeleton (`frontend/`, pnpm only), on branch `chore/BOOT-004-foundations`.
-2. Tasks 4 (contract pipeline) and 5 (`check` command); then push and open the BOOT-004 PR.
-3. Then the stacked branches in the plan: BOOT-006 Docker, BOOT-007 Claude config, BOOT-005 CI.
+1. Whole-branch review of BOOT-004, then push and open its PR with the real `check` output.
+2. Then the stacked branches in the plan: BOOT-006 Docker (Task 6, needs Docker Desktop running), BOOT-007 Claude config (Tasks 7–8), BOOT-005 CI (Task 9).
 
 ## Waiting on the owner
 
